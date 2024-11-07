@@ -2,7 +2,7 @@
  
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { z } from "zod"
+import { nullable, z } from "zod"
  
 import { Button } from "@/components/ui/button"
 import {
@@ -14,7 +14,11 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Checkbox } from "../ui/checkbox"
+import { useState } from "react"
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
+import { Check, ChevronsUpDown, Command } from "lucide-react"
+import { CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command"
+import { cn } from "@/lib/utils"
 
 const formSchema = z.object({
   customerName: z.string().min(1, {
@@ -23,11 +27,11 @@ const formSchema = z.object({
   address: z.string().min(1,{
     message: 'Required'
   }),
-  services: z.array(z.object({
+  service: z.object({
     id: z.number(),
     title: z.string(),
     price: z.number()
-  })).min(1),
+  }),
   pic: z.string(),
 })
 
@@ -50,13 +54,15 @@ function FormPemesanan() {
     defaultValues: {
       customerName: "",
       address:"",
-      services: []
+      service: undefined
     },
   })
  
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values)
   }
+
+
   return (
     <div className="">
       <Form {...form}>
@@ -90,39 +96,65 @@ function FormPemesanan() {
           <FormItem>
             <FormLabel>Pilih Layanan</FormLabel>
           </FormItem>
-          {listService.map((item) => (
-                <FormField
-                  key={item.id}
-                  control={form.control}
-                  name="services"
-                  render={({ field }) => {
-                    return (
-                      <FormItem
-                        key={item.id}
-                        className="flex flex-row items-start space-x-3 space-y-0"
+          <FormField
+            control={form.control}
+            name="service"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className={cn(
+                          "w-[200px] justify-between",
+                          !field.value && "text-muted-foreground"
+                        )}
                       >
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value?.some(e=> e.id===item.id)}
-                            onCheckedChange={(checked) => {
-                              return checked
-                                ? field.onChange([...field.value, item])
-                                : field.onChange(
-                                    field.value?.filter(
-                                      (value) => value.id !== item.id
-                                    )
-                                  )
-                            }}
-                          />
-                        </FormControl>
-                        <FormLabel className="font-normal">
-                          {item.title}
-                        </FormLabel>
-                      </FormItem>
-                    )
-                  }}
-                />
-              ))}
+                        {field.value
+                          ? listService.find(
+                              (e) => e === field.value
+                            )?.title
+                          : "Pilih layanan"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[200px] p-0">
+                    <Command>
+                      <CommandInput placeholder="Pilih Layanan..." />
+                      <CommandList>
+                        <CommandEmpty>Layanan tidak tersedia.</CommandEmpty>
+                        <CommandGroup>
+                          {listService.map((layanan) => (
+                            <CommandItem
+                              value={layanan.title}
+                              key={layanan.id}
+                              onSelect={() => {
+                                form.setValue("service", layanan)
+                              }}
+                            >
+                              {layanan.title}
+                              <Check
+                                className={cn(
+                                  "ml-auto",
+                                  layanan === field.value
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <Button type="submit" size={'lg'}>Simpan</Button>
         </form>
       </Form>
