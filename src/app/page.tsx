@@ -1,101 +1,158 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+
+export default function UserProfile() {
+  const [isEditing, setIsEditing] = useState(false);
+  const [profile, setProfile] = useState({
+    name: "grcantikk",
+    email: "grcantik@gmail.com",
+    phone: "0822****",
+    address: "Bojongsoangtos",
+    bio: "_Whatever you are, Be a good one_",
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setProfile((prevProfile) => ({
+      ...prevProfile,
+      [name]: value,
+    }));
+  };
+
+  const toggleEdit = () => setIsEditing(!isEditing);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="flex flex-col lg:flex-row min-h-screen bg-gray-900 text-white">
+      {/* Sidebar */}
+      <div className="w-full lg:w-1/4 p-6 bg-gray-800">
+        <h2 className="text-xl font-semibold mb-6">Account Settings</h2>
+        <ul className="space-y-4">
+          <li className="hover:text-blue-500 cursor-pointer">Public Profile</li>
+          <li className="hover:text-blue-500 cursor-pointer">Account</li>
+          <li className="hover:text-blue-500 cursor-pointer">Appearance</li>
+          <li className="hover:text-blue-500 cursor-pointer">Accessibility</li>
+          <li className="hover:text-blue-500 cursor-pointer">Notifications</li>
+          {/* Tambahkan item lain sesuai kebutuhan */}
+        </ul>
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      {/* Konten Utama Profil */}
+      <div className="flex-grow p-6">
+        <div className="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center mb-8">
+          <h1 className="text-2xl font-bold text-white mb-4 lg:mb-0">Public Profile</h1>
+          <button
+            type="button"
+            onClick={toggleEdit}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            {isEditing ? "Selesai" : "Edit Profil"}
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Foto Profil dan Informasi */}
+        <div className="flex flex-col lg:flex-row items-start lg:space-x-8">
+          {/* Foto Profil */}
+          <div className="flex-shrink-0 mb-6 lg:mb-0">
+            <img
+              src="/profile.jpg" // Ganti dengan URL gambar profil Anda
+              alt="Foto Profil"
+              className="w-36 h-36 rounded-full border-2 border-gray-300"
+            />
+            {isEditing && (
+              <button className="mt-2 text-blue-500 hover:underline">Edit</button>
+            )}
+          </div>
+
+          {/* Informasi Profil */}
+          <div className="flex-grow space-y-4 w-full">
+            <div>
+              <label className="block text-sm font-medium text-gray-400">Nama</label>
+              <p className="text-lg font-semibold">
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="name"
+                    className="w-full px-4 py-2 border border-gray-700 bg-gray-800 rounded-lg mt-1 focus:outline-none focus:border-blue-500"
+                    value={profile.name}
+                    onChange={handleInputChange}
+                  />
+                ) : (
+                  profile.name
+                )}
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-400">Bio</label>
+              <p className="text-gray-300">
+                {isEditing ? (
+                  <textarea
+                    name="bio"
+                    className="w-full px-4 py-2 border border-gray-700 bg-gray-800 rounded-lg mt-1 focus:outline-none focus:border-blue-500"
+                    rows="3"
+                    value={profile.bio}
+                    onChange={handleInputChange}
+                  />
+                ) : (
+                  profile.bio
+                )}
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-400">Email</label>
+              <p className="text-gray-300">
+                {isEditing ? (
+                  <input
+                    type="email"
+                    name="email"
+                    className="w-full px-4 py-2 border border-gray-700 bg-gray-800 rounded-lg mt-1 focus:outline-none focus:border-blue-500"
+                    value={profile.email}
+                    onChange={handleInputChange}
+                  />
+                ) : (
+                  profile.email
+                )}
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-400">Nomor Telepon</label>
+              <p className="text-gray-300">
+                {isEditing ? (
+                  <input
+                    type="tel"
+                    name="phone"
+                    className="w-full px-4 py-2 border border-gray-700 bg-gray-800 rounded-lg mt-1 focus:outline-none focus:border-blue-500"
+                    value={profile.phone}
+                    onChange={handleInputChange}
+                  />
+                ) : (
+                  profile.phone
+                )}
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-400">Alamat</label>
+              <p className="text-gray-300">
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="address"
+                    className="w-full px-4 py-2 border border-gray-700 bg-gray-800 rounded-lg mt-1 focus:outline-none focus:border-blue-500"
+                    value={profile.address}
+                    onChange={handleInputChange}
+                  />
+                ) : (
+                  profile.address
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
