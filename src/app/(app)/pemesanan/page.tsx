@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-export default async function Pemesanan() {
-    return (
-      <main className="p-10">
-        <h1 className="text-2xl font-bold my-2">Pemesanan</h1>
-      </main>
-    );
-  }
-=======
 import CardList from "@/components/pemesanan/CardList";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,4 +58,3 @@ export default async function Pemesanan() {
     </main>
   );
 }
->>>>>>> 207f0ef5d49811492b086811de5c1d784dd7054f
