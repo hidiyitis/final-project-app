@@ -16,8 +16,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
-import { Check, ChevronsUpDown, Command } from "lucide-react"
-import { CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command"
+import { Check, ChevronsUpDown } from "lucide-react"
+import { CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Command } from "../ui/command"
 import { cn } from "@/lib/utils"
 
 const formSchema = z.object({
@@ -27,41 +27,60 @@ const formSchema = z.object({
   address: z.string().min(1,{
     message: 'Required'
   }),
-  service: z.object({
-    id: z.number(),
-    title: z.string(),
-    price: z.number()
-  }),
+  service: z.string(),
   pic: z.string(),
+  price: z.number()
 })
 
 const listService: ILayanan[] = [
   {
     id: 1,
-    title: 'Makan Kuda',
+    title: 'Maling Motor',
     price: 25_000
   },
   {
     id: 2,
-    title: 'Sedot Dosa',
+    title: 'Cuci Gudang',
+    price: 25_000
+  },
+  {
+    id: 3,
+    title: 'Manasis Kompor',
     price: 25_000
   },
 ]
 
-function FormPemesanan() {
+function FormPemesanan({
+  closeModal,
+  pemesanan
+}:{
+  closeModal?: ()=>void,
+  pemesanan?: IPemesanan
+}) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      customerName: "",
-      address:"",
-      service: undefined
+    defaultValues: pemesanan ? {
+      customerName: pemesanan.customerName,
+      address: pemesanan.address,
+      pic:pemesanan.pic,
+      service: pemesanan.service,
+      price:pemesanan.price
+    }:{
+      customerName:'',
+      address: '',
+      pic:'',
+      service:'',
+      price: 0
     },
   })
  
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+    if(pemesanan){
+      if (closeModal){
+        closeModal()
+      }
+    }
   }
-
 
   return (
     <div className="">
@@ -114,7 +133,7 @@ function FormPemesanan() {
                       >
                         {field.value
                           ? listService.find(
-                              (e) => e === field.value
+                              (e) => e.title === field.value
                             )?.title
                           : "Pilih layanan"}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -132,14 +151,14 @@ function FormPemesanan() {
                               value={layanan.title}
                               key={layanan.id}
                               onSelect={() => {
-                                form.setValue("service", layanan)
+                                form.setValue("service", layanan.title)
                               }}
                             >
                               {layanan.title}
                               <Check
                                 className={cn(
                                   "ml-auto",
-                                  layanan === field.value
+                                  layanan.title === field.value
                                     ? "opacity-100"
                                     : "opacity-0"
                                 )}
@@ -151,6 +170,19 @@ function FormPemesanan() {
                     </Command>
                   </PopoverContent>
                 </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="pic"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Petugas</FormLabel>
+                <FormControl>
+                  <Input placeholder="Nama Petugas" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

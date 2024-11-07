@@ -1,6 +1,8 @@
 'use client'
+import ModalPemesanan from "@/components/pemesanan/ModalPemesanan"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import convertRupiah from "@/utils/currency"
 import { ArrowLeft } from "lucide-react"
 import { useRouter, useParams } from "next/navigation"
 import { number } from "zod"
@@ -79,8 +81,14 @@ function DetailPemesananPage() {
                 </Label>
                 <p>{data?.pic}</p>
               </div>
+              <div className="space-y-1">
+                <Label className="text-primary">
+                  Total Harga
+                </Label>
+                <p>{convertRupiah(data!.price)}</p>
+              </div>
             </main>
-            <Button>Ubah Pemesanan</Button>
+            <ModalPemesanan pemesanan={data}/>
           </div>
         </div>
       </div>
