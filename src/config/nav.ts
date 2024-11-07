@@ -1,7 +1,8 @@
 import { SidebarLink } from "@/components/SidebarItems";
-import { ClipboardList, HomeIcon } from "lucide-react";
+import { ClipboardList, HomeIcon, User } from "lucide-react";
 
 export const defaultLinks: SidebarLink[] = [
   { href: "/dashboard", title: "Dashboard", icon: HomeIcon },
-  { href: "/pemesanan", title: "Pemesanan", icon: ClipboardList },
+  { href: "/Pemesanan", title: "Pemesanan", icon: ClipboardList },
+  { href: "/Pekerja", title: "Manajemen Pekerja", icon: User },
 ];
