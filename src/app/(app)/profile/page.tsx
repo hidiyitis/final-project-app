@@ -23,24 +23,13 @@ export default function UserProfile() {
   const toggleEdit = () => setIsEditing(!isEditing);
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-gray-900 text-white">
-      {/* Sidebar */}
-      <div className="w-full lg:w-1/4 p-6 bg-gray-800">
-        <h2 className="text-xl font-semibold mb-6">Account Settings</h2>
-        <ul className="space-y-4">
-          <li className="hover:text-blue-500 cursor-pointer">Public Profile</li>
-          <li className="hover:text-blue-500 cursor-pointer">Account</li>
-          <li className="hover:text-blue-500 cursor-pointer">Appearance</li>
-          <li className="hover:text-blue-500 cursor-pointer">Accessibility</li>
-          <li className="hover:text-blue-500 cursor-pointer">Notifications</li>
-          {/* Tambahkan item lain sesuai kebutuhan */}
-        </ul>
-      </div>
-
+    <div className="flex flex-col min-h-screen bg-white text-black">
+      {/* Bagian Sidebar yang mengandung Account Settings dihapus */}
+      
       {/* Konten Utama Profil */}
       <div className="flex-grow p-6">
         <div className="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center mb-8">
-          <h1 className="text-2xl font-bold text-white mb-4 lg:mb-0">Public Profile</h1>
+          <h1 className="text-2xl font-bold mb-4 lg:mb-0">Profile</h1>
           <button
             type="button"
             onClick={toggleEdit}
@@ -67,13 +56,13 @@ export default function UserProfile() {
           {/* Informasi Profil */}
           <div className="flex-grow space-y-4 w-full">
             <div>
-              <label className="block text-sm font-medium text-gray-400">Nama</label>
+              <label className="block text-sm font-medium text-gray-700">Nama</label>
               <p className="text-lg font-semibold">
                 {isEditing ? (
                   <input
                     type="text"
                     name="name"
-                    className="w-full px-4 py-2 border border-gray-700 bg-gray-800 rounded-lg mt-1 focus:outline-none focus:border-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-lg mt-1 focus:outline-none focus:border-blue-500"
                     value={profile.name}
                     onChange={handleInputChange}
                   />
@@ -84,12 +73,12 @@ export default function UserProfile() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400">Bio</label>
-              <p className="text-gray-300">
+              <label className="block text-sm font-medium text-gray-700">Bio</label>
+              <p className="text-gray-700">
                 {isEditing ? (
                   <textarea
                     name="bio"
-                    className="w-full px-4 py-2 border border-gray-700 bg-gray-800 rounded-lg mt-1 focus:outline-none focus:border-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-lg mt-1 focus:outline-none focus:border-blue-500"
                     rows="3"
                     value={profile.bio}
                     onChange={handleInputChange}
@@ -101,13 +90,13 @@ export default function UserProfile() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400">Email</label>
-              <p className="text-gray-300">
+              <label className="block text-sm font-medium text-gray-700">Email</label>
+              <p className="text-gray-700">
                 {isEditing ? (
                   <input
                     type="email"
                     name="email"
-                    className="w-full px-4 py-2 border border-gray-700 bg-gray-800 rounded-lg mt-1 focus:outline-none focus:border-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-lg mt-1 focus:outline-none focus:border-blue-500"
                     value={profile.email}
                     onChange={handleInputChange}
                   />
@@ -118,13 +107,13 @@ export default function UserProfile() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400">Nomor Telepon</label>
-              <p className="text-gray-300">
+              <label className="block text-sm font-medium text-gray-700">Nomor Telepon</label>
+              <p className="text-gray-700">
                 {isEditing ? (
                   <input
                     type="tel"
                     name="phone"
-                    className="w-full px-4 py-2 border border-gray-700 bg-gray-800 rounded-lg mt-1 focus:outline-none focus:border-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-lg mt-1 focus:outline-none focus:border-blue-500"
                     value={profile.phone}
                     onChange={handleInputChange}
                   />
@@ -135,13 +124,13 @@ export default function UserProfile() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400">Alamat</label>
-              <p className="text-gray-300">
+              <label className="block text-sm font-medium text-gray-700">Alamat</label>
+              <p className="text-gray-700">
                 {isEditing ? (
                   <input
                     type="text"
                     name="address"
-                    className="w-full px-4 py-2 border border-gray-700 bg-gray-800 rounded-lg mt-1 focus:outline-none focus:border-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-lg mt-1 focus:outline-none focus:border-blue-500"
                     value={profile.address}
                     onChange={handleInputChange}
                   />
