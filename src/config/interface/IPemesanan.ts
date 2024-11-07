@@ -3,7 +3,7 @@ interface IPemesanan{
   customerName: string,
   date: string,
   address:string,
-  service: string[],
+  service: string,
   price:number,
   pic: string,
   status: string
