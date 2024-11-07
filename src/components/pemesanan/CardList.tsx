@@ -50,9 +50,9 @@ const CardPemesanan = ({pemesanan}:{
             <div className="flex flex-row px-5 py-2 justify-between">
               <div className='flex flex-col justify-between gap-1'>
                 <div className='flex flex-row gap-2 p-0'>
-                  {pemesanan?.service.map(e=><p className='text-sm text-white bg-slate-700 px-3 py-1 rounded-md' key={e}>{e}</p>)}
+                  <p className='text-sm text-white bg-slate-700 px-3 py-1 rounded-md'>{pemesanan?.service}</p>
                 </div>
-                <p className='text-lg font-normal mb-4'>{pemesanan?.customerName}</p>
+                <p className='text-lg font-normal'>{pemesanan?.customerName}</p>
                 <p><b>Alamat: </b>{pemesanan?.address}</p>
                 <div className='flex flex-row gap-1'>
                   <Tag color='hsl(var(--primary))'/>

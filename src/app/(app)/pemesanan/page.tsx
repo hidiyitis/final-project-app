@@ -9,6 +9,7 @@ export default async function Pemesanan() {
 =======
 import CardList from "@/components/pemesanan/CardList";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
 
 const listData:IPemesanan[] = [
@@ -17,7 +18,7 @@ const listData:IPemesanan[] = [
     customerName: 'Hidayatus Sholikhin',
     date: new Date(Date.now()).toISOString(),
     address: 'Jl. Kemana',
-    service: ['Maling Motor'],
+    service: 'Maling Motor',
     price: 200000,
     pic: 'Yanto',
     status: 'Belum'
@@ -27,7 +28,7 @@ const listData:IPemesanan[] = [
     customerName: 'Sholikhin',
     date: new Date(Date.now()).toISOString(),
     address: 'Jalan Kemana ya',
-    service: ['Cuci Gudang', 'Mandiin Kucing'],
+    service: 'Cuci Gudang',
     price: 200000,
     pic: 'Yanto',
     status: 'Sedang Dikerjakan'
@@ -37,7 +38,7 @@ const listData:IPemesanan[] = [
     customerName: 'Dayat',
     date: new Date(Date.now()).toISOString(),
     address: 'Jl. Doang Jadian Kagak',
-    service: ['Manasin Kompor'],
+    service: 'Manasin Kompor',
     price: 200000,
     pic: 'Yanto',
     status: 'Selesai'
@@ -58,8 +59,8 @@ export default async function Pemesanan() {
       </div>
       <div className="flex flex-col bg-slate-100 w-full gap-2 px-3 rounded-md">
         <div className="flex flex-row mt-3 justify-end gap-2">
-          <input placeholder="Cari sesuatu" type="text" className="p-2 rounded-md"/>
-          <Button size={'lg'}>Cari</Button>
+          <Input placeholder="Cari sesuatu" className="bg-white"/>
+          <Button className="w-[150]">Cari</Button>
         </div>
         <CardList pemesananList={listData}/>
       </div>
