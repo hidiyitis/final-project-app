@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -12,10 +13,18 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 export default function DialogDemo() {
+
+  const [serviceName, setServiceName] = useState<string>("");
+
+    const konfirmasi = () => {
+        alert(`Pekerja ${serviceName} telah berhasil dihapus!`);
+        setServiceName("");
+      };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="destructive">Hapus</Button>
+        <Button variant="destructive">Menghapus Pekerja</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -27,9 +36,9 @@ export default function DialogDemo() {
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">
-              Name
+              Nama
             </Label>
-            <Input id="name" className="col-span-3" />
+            <Input id="name" className="col-span-3" value={serviceName} onChange={(e) => setServiceName(e.target.value)}/>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="username" className="text-right">
@@ -39,7 +48,7 @@ export default function DialogDemo() {
           </div>
         </div>
         <DialogFooter>
-          <Button type="submit" variant="destructive">Simpan</Button>
+          <Button type="submit" variant="destructive" onClick={konfirmasi}>Simpan</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
