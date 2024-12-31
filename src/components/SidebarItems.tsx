@@ -1,10 +1,10 @@
-import { defaultLinks } from "@/config/nav";
+'use client'
+import { adminLinks, defaultLinks } from "@/config/nav";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-
 
 export interface SidebarLink {
   title: string;
@@ -13,9 +13,14 @@ export interface SidebarLink {
 }
 
 const SidebarItems = () => {
+  const {data: session} = useSession()
   return (
     <>
-      <SidebarLinkGroup links={defaultLinks} />
+    {
+      session?.user.accessRole === 'SUPER_ADMIN' ?
+        <SidebarLinkGroup links={defaultLinks} /> :
+        <SidebarLinkGroup links={adminLinks} />
+    }
     </>
   );
 };
