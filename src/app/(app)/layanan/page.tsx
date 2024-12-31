@@ -4,36 +4,35 @@ import ServiceCard from "@/components/layanan/layanan";
 
 export default function Home() {
   
-  
   const services = [
     {
       id: 'C001',
       title: 'General Cleaning',
-      harga: 200000,
+      price: 200000,
       desc: 'Pembersihan dasar untuk menjaga kebersihan harian atau mingguan.',
     },
     {
       id: 'C002',
       title: 'Hydro Cleaning',
-      harga: 150000,
+      price: 150000,
       desc: 'Pembersihan dengan tekanan air tinggi untuk menghilangkan debu dan kotoran.',
     },
     {
       id: 'C003',
       title: 'AC Cleaning',
-      harga: 200000,
+      price: 200000,
       desc: 'Pembersihan unit AC, termasuk filter dan evaporator.',
     },
     {
       id: 'C004',
       title: 'Deep Cleaning',
-      harga: 200000,
+      price: 200000,
       desc: 'Pembersihan mendalam untuk area yang jarang dijangkau.',
     },
     {
       id: 'C005',
       title: 'Fogging',
-      harga: 200000,
+      price: 200000,
       desc: 'Sterilisasi area dengan teknik penyemprotan kabut disinfektan.',
     }
   ];
@@ -62,6 +61,7 @@ export default function Home() {
               <th className="px-4 py-2 text-center">Harga</th>
               <th className="px-4 py-2 text-center">Deskripsi</th>
               <th className="px-4 py-2 text-center">Status</th>
+              <th className="px-4 py-2 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -70,9 +70,6 @@ export default function Home() {
           ))}
           </tbody>
         </table>
-        <div className="flex justify-center mt-5 mb-5">
-          
-        </div>
       </div>
     </div>
   );
