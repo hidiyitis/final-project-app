@@ -1,41 +1,39 @@
 'use client';
 import ServiceManager from "@/components/layanan/ServiceManager";
 import ServiceCard from "@/components/layanan/layanan";
+import { fetchServices } from "@/lib/apis/serviceApi";
+import { IService } from "@/lib/interfaces/serviceInterface";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-  
-  const services = [
-    {
-      id: 'C001',
-      title: 'General Cleaning',
-      price: 200000,
-      desc: 'Pembersihan dasar untuk menjaga kebersihan harian atau mingguan.',
-    },
-    {
-      id: 'C002',
-      title: 'Hydro Cleaning',
-      price: 150000,
-      desc: 'Pembersihan dengan tekanan air tinggi untuk menghilangkan debu dan kotoran.',
-    },
-    {
-      id: 'C003',
-      title: 'AC Cleaning',
-      price: 200000,
-      desc: 'Pembersihan unit AC, termasuk filter dan evaporator.',
-    },
-    {
-      id: 'C004',
-      title: 'Deep Cleaning',
-      price: 200000,
-      desc: 'Pembersihan mendalam untuk area yang jarang dijangkau.',
-    },
-    {
-      id: 'C005',
-      title: 'Fogging',
-      price: 200000,
-      desc: 'Sterilisasi area dengan teknik penyemprotan kabut disinfektan.',
+  const [query, setQuery] = useState<string>('')
+  const [services, setServices] = useState<IService[]>([]); 
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState<string | null>(null);
+  const [isOpenModal, setOpenModal] = useState(false);
+
+
+  const {data: session, status} = useSession();
+  if (status === 'unauthenticated') {
+    redirect('/')
+  }
+  const getServices = async () => {
+    try {
+      const data = await fetchServices(query, session!);
+      setServices(data);
+    } catch (error){
+      setError((error as Error).message);
+      setOpenModal(true);
+    }finally {
+      setLoading(false);
     }
-  ];
+  }
+  
+  useEffect(() => {
+    getServices();
+  }, []);
 
   return (
     <div className="p-8 bg-teal-25 min-h-screen">
@@ -51,25 +49,32 @@ export default function Home() {
             type="text"
             placeholder="Cari layanan..."
             className="w-full p-2 border border-gray-300 rounded-lg"
+            onChange={(e) => setQuery(e.target.value)}
           />
-          
         </div>
-        <table className="w-full table-auto">
-        <thead>
-            <tr>
-              <th className="px-4 py-2 text-left">Layanan</th>
-              <th className="px-4 py-2 text-center">Harga</th>
-              <th className="px-4 py-2 text-center">Deskripsi</th>
-              <th className="px-4 py-2 text-center">Status</th>
-              <th className="px-4 py-2 text-center">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-          {services.map((service) => (
-            <ServiceCard key={service.id} ser={service} />
-          ))}
-          </tbody>
-        </table>
+
+        {loading ? (
+          <p className="text-center">Loading...</p> // Menampilkan pesan loading saat data sedang di-fetch
+        ) : error ? (
+          <p className="text-center text-red-500">Error: {error}</p> // Menampilkan pesan error jika terjadi kesalahan
+        ) : (
+          <table className="w-full table-auto">
+            <thead>
+              <tr>
+                <th className="px-4 py-2 text-left">Layanan</th>
+                <th className="px-4 py-2 text-center">Harga</th>
+                <th className="px-4 py-2 text-center">Deskripsi</th>
+                <th className="px-4 py-2 text-center">Status</th>
+                <th className="px-4 py-2 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {services.map((service) => (
+                <ServiceCard key={service.id} ser={service} /> // Menampilkan data layanan dalam tabel
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );
