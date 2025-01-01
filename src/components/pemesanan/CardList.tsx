@@ -1,15 +1,15 @@
 import React from 'react'
-import { Card } from '../ui/card'
+import { Card } from '@/components/ui/card'
 import { parseIsoString } from '@/utils/dateFormat'
 import { ChevronRight, Tag } from 'lucide-react'
-import { Button } from '../ui/button'
+import { Button } from '@/components/ui/button'
 import convertRupiah from '@/utils/currency'
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import Link from 'next/link'
-
+import { IOrder } from '@/lib/interfaces/orderInterface'
 
 function CardListPemesanan({pemesananList}:{
-  pemesananList?: IPemesanan[]
+  pemesananList?: IOrder[]
 }) {
   if (pemesananList?.length === 0) {
     return <EmptyState/>
@@ -26,7 +26,7 @@ function CardListPemesanan({pemesananList}:{
 }
 
 const CardPemesanan = ({pemesanan}:{
-  pemesanan?: IPemesanan
+  pemesanan?: IOrder
 })=>{
   return(
     <li className='my-3'>
@@ -50,21 +50,21 @@ const CardPemesanan = ({pemesanan}:{
             <div className="flex flex-row px-5 py-2 justify-between">
               <div className='flex flex-col justify-between gap-1'>
                 <div className='flex flex-row gap-2 p-0'>
-                  <p className='text-sm text-white bg-slate-700 px-3 py-1 rounded-md'>{pemesanan?.service}</p>
+                  <p className='text-sm text-white bg-slate-700 px-3 py-1 rounded-md'>{pemesanan?.service.title}</p>
                 </div>
                 <p className='text-lg font-normal'>{pemesanan?.customerName}</p>
                 <p><b>Alamat: </b>{pemesanan?.address}</p>
                 <div className='flex flex-row gap-1'>
                   <Tag color='hsl(var(--primary))'/>
-                  <p className='font-semibold text-primary'>{convertRupiah(pemesanan!.price)}</p>
+                  <p className='font-semibold text-primary'>{convertRupiah(pemesanan?.service.price ?? 0)}</p>
                 </div>
               </div>
               <div className="flex flex-row items-center justify-between">
                 <div className='flex flex-row items-center gap-2'>
-                  <p>{pemesanan?.pic}</p> 
+                  <p>{pemesanan?.pic.name}</p> 
                   <Avatar>
                     <AvatarImage src=""/>
-                    <AvatarFallback className="font-semibold">Y</AvatarFallback>
+                    <AvatarFallback className="font-semibold">{pemesanan?.pic.name[0]}</AvatarFallback>
                   </Avatar>
                 </div>
               </div>
@@ -89,8 +89,8 @@ const StatusPemesanan = ({status}:{status:string})=>{
   if (status.toUpperCase()==='BELUM') {
     return <p className='px-3 py-1 rounded-md backdrop-brightness-50 opacity-90 text-sm font-normal text-white'>{status}</p>
   }
-  if (status.toUpperCase()==='SEDANG DIKERJAKAN') {
-    return <p className='px-3 py-1 rounded-md bg-yellow-400 opacity-90 text-sm font-normal text-white'>{status}</p>
+  if (status.toUpperCase()==='SEDANG_DIKERJAKAN') {
+    return <p className='px-3 py-1 rounded-md bg-yellow-400 opacity-90 text-sm font-normal text-white'>{status.replace('_', ' ')}</p>
   }
   return(
     <p className='px-3 py-1 rounded-md bg-green-400 opacity-90 text-sm font-normal text-white'>

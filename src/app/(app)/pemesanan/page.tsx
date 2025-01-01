@@ -1,42 +1,51 @@
+"use client"
 import CardList from "@/components/pemesanan/CardList";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { fetchOrders } from "@/lib/apis/orderApi";
+import { IOrder } from "@/lib/interfaces/orderInterface";
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { debounce } from 'lodash';
+import DialogModal from "@/components/DialogModal";
+import { redirect } from "next/navigation";
+import { useSession } from "next-auth/react";
 
-const listData:IPemesanan[] = [
-  {
-    id: 1,
-    customerName: 'Hidayatus Sholikhin',
-    date: new Date(Date.now()).toISOString(),
-    address: 'Jl. Kemana',
-    service: 'Maling Motor',
-    price: 200000,
-    pic: 'Yanto',
-    status: 'Belum'
-  },
-  {
-    id: 2,
-    customerName: 'Sholikhin',
-    date: new Date(Date.now()).toISOString(),
-    address: 'Jalan Kemana ya',
-    service: 'Cuci Gudang',
-    price: 200000,
-    pic: 'Yanto',
-    status: 'Sedang Dikerjakan'
-  },
-  {
-    id: 3,
-    customerName: 'Dayat',
-    date: new Date(Date.now()).toISOString(),
-    address: 'Jl. Doang Jadian Kagak',
-    service: 'Manasin Kompor',
-    price: 200000,
-    pic: 'Yanto',
-    status: 'Selesai'
-  },
-]
+export default function Pemesanan() {
+  const [query, setQuery] = useState<string>('')
+  const [orders, setOrders] = useState<IOrder[]>([]); 
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState<string | null>(null);
+  const [isOpenModal, setOpenModal] = useState(false);
+  
+  const {data: session, status} = useSession();
+  if (status === 'unauthenticated') {
+    redirect('/')
+  }
+  const getOrders = async (query: string) => { 
+    try { 
+      const data = await fetchOrders(query, session!); 
+      setOrders(data); 
+    } catch (error) {
+      setError((error as Error).message);
+      setOpenModal(true);
+    } finally { 
+      setLoading(false); 
+    } 
+  }; 
 
-export default async function Pemesanan() {
+  const debounceFetchData = useCallback(debounce((query)=>{
+    getOrders(query);
+  }, 1000),[])
+
+  useEffect(() => { 
+    debounceFetchData(query);
+  }, [query, debounceFetchData]);
+
+  const handleCloseModal = ()=>{
+    setOpenModal(false);
+    window.location.reload();
+  }
   return (
     <main className="px-10">
       <div className="flex flex-row items-center justify-between my-4">
@@ -48,12 +57,13 @@ export default async function Pemesanan() {
           <Button className="h-full">Buat Pemesanan</Button>
         </Link>
       </div>
-      <div className="flex flex-col bg-slate-100 w-full gap-2 px-3 rounded-md">
+      <div className="flex flex-col bg-slate-100 w-full min-h-svh gap-2 px-3 rounded-md">
         <div className="flex flex-row mt-3 justify-end gap-2">
-          <Input placeholder="Cari sesuatu" className="bg-white"/>
-          <Button className="w-[150]">Cari</Button>
+          <Input placeholder="Cari sesuatu" className="bg-white" value={query} onChange={(e)=>setQuery(e.target.value)}/>
         </div>
-        <CardList pemesananList={listData}/>
+        {loading && <p>Loading...</p>} 
+        {error && <DialogModal status={'Gagal'} message={error} isOpen={isOpenModal} onClose={handleCloseModal}/>} 
+        {!loading && !error && <CardList pemesananList={orders} />}
       </div>
     </main>
   );
