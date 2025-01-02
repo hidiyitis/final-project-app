@@ -15,6 +15,7 @@ import { fetchServices } from '@/lib/apis/serviceApi';
 import { fetchWorker } from '@/lib/apis/workerApi';
 import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
+import { RedirectLoggin } from '../RedirectLoggin';
 
 interface IFormOrderProps {
   initialValues?: IFormOrder,
@@ -165,6 +166,7 @@ export default function FormPemesanan({
         <Button type="submit">Submit</Button>
       </form>
       {error && <DialogModal status='Berhasil' message={error} isOpen={isErrorModal} onClose={handleCloseErrorModal} />}
+      <RedirectLoggin/>
     </>
   );
 }

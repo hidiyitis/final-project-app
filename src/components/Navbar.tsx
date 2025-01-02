@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation"
 import ProfileDropdown from "./Profil"
-import { useSession } from "next-auth/react"
 import { auth } from "../../auth";
 
 async function Navbar() {
