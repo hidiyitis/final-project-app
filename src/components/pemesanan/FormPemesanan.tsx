@@ -42,7 +42,7 @@ export default function FormPemesanan({
   useEffect(() => { 
     const fetchData = async () => { 
       try { 
-        const [servicesData, picsData] = await Promise.all([fetchServices(session!), fetchWorker(session!)]); 
+        const [servicesData, picsData] = await Promise.all([fetchServices('',session!), fetchWorker(session!)]); 
         setServices(servicesData); 
         setPics(picsData); 
       } catch (error) { 
@@ -56,6 +56,9 @@ export default function FormPemesanan({
   const handleCloseErrorModal = () => { 
     setError(null); 
     setErrorModal(false);
+    if (error?.includes('service')){
+      redirect('/pemesanan')
+    }
     window.location.reload();
   };
 
