@@ -1,6 +1,7 @@
 'use client'
 import DialogModal from "@/components/DialogModal"
 import ModalPemesanan from "@/components/pemesanan/ModalPemesanan"
+import { RedirectLoggin } from "@/components/RedirectLoggin"
 import { Label } from "@/components/ui/label"
 import { fetchOrderById } from "@/lib/apis/orderApi"
 import { IFormOrder, IOrder } from "@/lib/interfaces/orderInterface"
@@ -19,11 +20,7 @@ function DetailPemesananPage() {
   const [error, setError] = useState<string | null>(null);
   const [isErrorModal, setErrorModal] = useState(true); 
   const { id } = useParams();
-  const {data: session, status} = useSession();
-
-  if (status === 'unauthenticated') {
-    redirect(`/?callback=pemesanan/detail/${id}`)
-  }
+  const {data: session} = useSession();
 
   const handleCloseErrorModal = () => { 
     setError(null); 
@@ -51,7 +48,7 @@ function DetailPemesananPage() {
       } 
     }; 
     getOrder(); 
-  }, [id, order]);
+  }, []);
   if (loading) return <div className="text-center">Loading...</div>; 
   if (error) return <DialogModal status='Gagal' message={error} isOpen={isErrorModal} onClose={handleCloseErrorModal} />; 
   if (!order) return <div>No order found</div>;
@@ -115,6 +112,7 @@ function DetailPemesananPage() {
           </div>
         </div>
       </div>
+      <RedirectLoggin/>
     </main>
   )
 }

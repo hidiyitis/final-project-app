@@ -5,11 +5,17 @@ import { ComboBox } from '@/components/ComboBox';
 import { formOrderSchema } from '@/lib/schemas/orderSchema';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { IFormOrder, IWorker, IService } from '@/lib/interfaces/orderInterface';
-import { fetchServices, fetchWorker } from '@/lib/apis/orderApi';
+import { IFormOrder } from '@/lib/interfaces/orderInterface';
 import { STATUS_PEMESANAN } from '@/constants/pemesanan/constans';
 import convertRupiah from '@/utils/currency';
 import DialogModal from '../DialogModal';
+import { IService } from '@/lib/interfaces/serviceInterface';
+import { IWorker } from '@/lib/interfaces/workerInterface';
+import { fetchServices } from '@/lib/apis/serviceApi';
+import { fetchWorker } from '@/lib/apis/workerApi';
+import { useSession } from 'next-auth/react';
+import { redirect } from 'next/navigation';
+import { RedirectLoggin } from '../RedirectLoggin';
 
 interface IFormOrderProps {
   initialValues?: IFormOrder,
@@ -29,10 +35,15 @@ export default function FormPemesanan({
   const [pics, setPics] = useState<IWorker[]>([]); 
   const [error, setError] = useState<string | null>(null);
   const [isErrorModal, setErrorModal] = useState(false);
+
+  const {data: session, status} = useSession()
+  if (status === 'unauthenticated') {
+    redirect('/')
+  }
   useEffect(() => { 
     const fetchData = async () => { 
       try { 
-        const [servicesData, picsData] = await Promise.all([fetchServices(), fetchWorker()]); 
+        const [servicesData, picsData] = await Promise.all([fetchServices('',session!), fetchWorker(session!)]); 
         setServices(servicesData); 
         setPics(picsData); 
       } catch (error) { 
@@ -46,6 +57,9 @@ export default function FormPemesanan({
   const handleCloseErrorModal = () => { 
     setError(null); 
     setErrorModal(false);
+    if (error?.includes('service')){
+      redirect('/pemesanan')
+    }
     window.location.reload();
   };
 
@@ -152,6 +166,7 @@ export default function FormPemesanan({
         <Button type="submit">Submit</Button>
       </form>
       {error && <DialogModal status='Berhasil' message={error} isOpen={isErrorModal} onClose={handleCloseErrorModal} />}
+      <RedirectLoggin/>
     </>
   );
 }

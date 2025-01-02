@@ -1,7 +1,7 @@
-"use client"
-
-import { TrendingDown, TrendingUp } from "lucide-react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+"use client";
+import React, { useEffect, useState } from "react";
+import { TrendingDown, TrendingUp } from "lucide-react";
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
 import {
   Card,
@@ -10,7 +10,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
@@ -18,77 +18,103 @@ import {
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
+} from "@/components/ui/chart";
 
-export const description = "An area chart with icons"
+export const description = "An area chart with icons";
 
-const chartData = [
-  { month: "January", packet: 186, general: 80 },
-  { month: "February", packet: 305, general: 200 },
-  { month: "March", packet: 237, general: 120 },
-  { month: "April", packet: 73, general: 190 },
-  { month: "May", packet: 209, general: 130 },
-  { month: "June", packet: 214, general: 140 },
-]
+interface ChartData {
+  monthlyOrders: { month: string; total: number }[];
+  inProgressOrders: { total: number }[];
+  completedOrder: { total: number }[];
+}
 
+interface ChartProps {
+  data: ChartData;
+}
+
+// Konfigurasi chart
 const chartConfig = {
-  packet: {
-    label: "packet",
+  monthlyOrders: {
+    label: "Monthly Orders",
     color: "hsl(var(--chart-1))",
-    icon: TrendingDown,
-  },
-  general: {
-    label: "general",
-    color: "hsl(var(--chart-2))",
     icon: TrendingUp,
   },
-} satisfies ChartConfig
+  inProgressOrders: {
+    label: "In-Progress Orders",
+    color: "hsl(var(--chart-2))",
+    icon: TrendingDown,
+  },
+  completedOrder: {
+    label: "Completed Orders",
+    color: "hsl(var(--chart-3))",
+    icon: TrendingUp,
+  },
+} satisfies ChartConfig;
 
-export function Chart() {
+export function Chart({ data }: ChartProps) {
+  const [chartData, setChartData] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Normalisasi data dari props
+    if (data && data.monthlyOrders.length > 0) {
+      const normalizedData = data.monthlyOrders.map((order, index) => ({
+        month: order.month || `Month ${index + 1}`,
+        monthlyOrders: order.total || 0,
+        inProgressOrders: data.inProgressOrders[index]?.total || 0,
+        completedOrder: data.completedOrder[index]?.total || 0,
+      }));
+      setChartData(normalizedData);
+    }
+  }, [data]);
+
+  // Tampilkan pesan jika data kosong
+  if (!chartData.length) {
+    return <p className="text-center text-muted">No data available</p>;
+  }
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-primary">Pemesanan</CardTitle>
-        <CardDescription>
-          Data pemesanan dalam kurun waktu 6 bulan
-        </CardDescription>
+        <CardDescription>Data pemesanan dalam kurun waktu 6 bulan</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <AreaChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
+          <AreaChart data={chartData} margin={{ left: 12, right: 12 }}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="month"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => value.slice(0, 3)} // Ambil 3 huruf pertama nama bulan
             />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="line" />}
             />
             <Area
-              dataKey="general"
+              dataKey="monthlyOrders"
               type="natural"
-              fill="var(--color-general)"
+              fill="var(--color-monthlyOrders)"
               fillOpacity={0.4}
-              stroke="var(--color-general)"
+              stroke="var(--color-monthlyOrders)"
               stackId="a"
             />
             <Area
-              dataKey="packet"
+              dataKey="inProgressOrders"
               type="natural"
-              fill="var(--color-packet)"
+              fill="var(--color-inProgressOrders)"
               fillOpacity={0.4}
-              stroke="var(--color-packet)"
+              stroke="var(--color-inProgressOrders)"
+              stackId="a"
+            />
+            <Area
+              dataKey="completedOrder"
+              type="natural"
+              fill="var(--color-completedOrder)"
+              fillOpacity={0.4}
+              stroke="var(--color-completedOrder)"
               stackId="a"
             />
             <ChartLegend content={<ChartLegendContent />} />
@@ -99,14 +125,15 @@ export function Chart() {
         <div className="flex w-full items-start gap-2 text-sm">
           <div className="grid gap-2">
             <div className="flex items-center gap-2 font-medium leading-none">
-              Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+              Data pemesanan berdasarkan status pesanan{" "}
+              <TrendingUp className="h-4 w-4" />
             </div>
             <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              January - June 2024
+              Data tahun {new Date().getFullYear()}
             </div>
           </div>
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }
