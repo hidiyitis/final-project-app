@@ -9,9 +9,15 @@ export const {
   auth,
 } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
+  jwt:{
+    maxAge: 29*60
+  },
   session:{
     strategy: 'jwt',
-    maxAge: 29*60
+    maxAge: 29*60,
+  },
+  pages: {
+    signIn: '/'
   },
   providers: [
     CredentialsProvider({
@@ -53,7 +59,7 @@ export const {
             name: user.name!,
             accessToken: user.accessToken!,
             accessRole: user.accessRole!,
-            accessTokenExpiresIn: user.accessTokenExpiresIn!
+            accessTokenExpiresIn: (Date.now() + user.accessTokenExpiresIn!)
           }
         }
       }
@@ -66,7 +72,7 @@ export const {
           name: token.user!.name,
           accessRole: token.user!.accessRole,
           accessToken: token.user!.accessToken,
-          accessTokenExpiresIn:  Date.now() + token.user!.accessTokenExpiresIn!
+          accessTokenExpiresIn:  token.user!.accessTokenExpiresIn!
       };
       return session
     }

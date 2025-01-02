@@ -10,6 +10,7 @@ import { debounce } from 'lodash';
 import DialogModal from "@/components/DialogModal";
 import { redirect } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { RedirectLoggin } from "@/components/RedirectLoggin";
 
 export default function Pemesanan() {
   const [query, setQuery] = useState<string>('')
@@ -18,10 +19,7 @@ export default function Pemesanan() {
   const [error, setError] = useState<string | null>(null);
   const [isOpenModal, setOpenModal] = useState(false);
   
-  const {data: session, status} = useSession();
-  if (status === 'unauthenticated') {
-    redirect('/')
-  }
+  const {data: session} = useSession();
   const getOrders = async (query: string) => { 
     try { 
       const data = await fetchOrders(query, session!); 
@@ -67,6 +65,7 @@ export default function Pemesanan() {
         {error && <DialogModal status={'Gagal'} message={error} isOpen={isOpenModal} onClose={handleCloseModal}/>} 
         {!loading && !error && <CardList pemesananList={orders} />}
       </div>
+      <RedirectLoggin/>
     </main>
   );
 }
