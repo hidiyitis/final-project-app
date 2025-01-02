@@ -1,5 +1,5 @@
 "use client"
-
+import React from "react"
 import { useEffect, useState } from "react"
 import { TrendingDown, TrendingUp } from "lucide-react"
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
@@ -23,6 +23,10 @@ import {
 
 export const description = "An area chart with icons"
 
+interface ChartProps {
+  data: any; 
+}
+
 // Konfigurasi chart
 const chartConfig = {
   monthlyOrders: {
@@ -40,39 +44,54 @@ const chartConfig = {
     color: "hsl(var(--chart-3))",
     icon: TrendingUp,
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
-export function Chart() {
+export function Chart({ data }: ChartProps) {
   const [chartData, setChartData] = useState([]) // State untuk data chart
   const [loading, setLoading] = useState(true) // State untuk loading
 
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     try {
+  //       const response = await fetch("/api/v1/dashboard/chart") 
+  //       if (!response.ok) {
+  //         throw new Error("Failed to fetch data")
+  //       }
+  //       const result = await response.json()
+
+  //       // Normalisasi data dari backend
+  //       const normalizedData = result.data.monthlyOrders.map((order: any, index: number) => ({
+  //         month: order.month,
+  //         monthlyOrders: order.total,
+  //         inProgressOrders: result.data.inProgressOrders[index]?.total || 0,
+  //         completedOrder: result.data.completedOrder[index]?.total || 0,
+  //       }))
+
+  //       setChartData(normalizedData)
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error)
+  //     } finally {
+  //       setLoading(false)
+  //     }
+  //   }
+
+  //   fetchData()
+  // }, [])
+
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await fetch("/api/v1/dashboard/chart") 
-        if (!response.ok) {
-          throw new Error("Failed to fetch data")
-        }
-        const result = await response.json()
+    if (data) {
+      // Normalisasi data dari backend jika data sudah ada
+      const normalizedData = data.monthlyOrders.map((order: any, index: number) => ({
+        month: order.month,
+        monthlyOrders: order.total,
+        inProgressOrders: data.inProgressOrders[index]?.total || 0,
+        completedOrder: data.completedOrder[index]?.total || 0,
+      }));
 
-        // Normalisasi data dari backend
-        const normalizedData = result.data.monthlyOrders.map((order: any, index: number) => ({
-          month: order.month,
-          monthlyOrders: order.total,
-          inProgressOrders: result.data.inProgressOrders[index]?.total || 0,
-          completedOrder: result.data.completedOrder[index]?.total || 0,
-        }))
-
-        setChartData(normalizedData)
-      } catch (error) {
-        console.error("Error fetching data:", error)
-      } finally {
-        setLoading(false)
-      }
+      setChartData(normalizedData);
+      setLoading(false);
     }
-
-    fetchData()
-  }, [])
+  }, [data]);
 
   if (loading) {
     return <p>Loading data...</p>
