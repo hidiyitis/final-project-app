@@ -1,8 +1,7 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useEffect, useState } from "react"
-
+import * as React from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -10,36 +9,46 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 
 interface CardProps {
-  title: string
-  description: string
-  icon: React.ReactNode
-  total: number | string
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  total?: number | string; // Optional untuk handling default value
 }
 
-export default function CardBerhasil({ title, description, icon }: CardProps) {
-  const [total, setTotal] = useState<number>(0)
+const CardBerhasil: React.FC<CardProps> = ({ title, description, icon, total = 0 }) => {
+  const [completedTotal, setCompletedTotal] = useState<number>(Number(total));
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchCompletedOrders = async () => {
       try {
-        const response = await fetch("/api/v1/dashboard/card") // Ganti dengan URL endpoint backend Anda
-        const data = await response.json()
-        if (data && data.data && data.data.completedOrders) {
-          setTotal(data.data.completedOrders)
+        const response = await fetch("/api/v1/dashboard/card", {
+          signal: controller.signal,
+        });
+        const data = await response.json();
+        if (data?.data?.completedOrders) {
+          setCompletedTotal(data.data.completedOrders);
         }
       } catch (error) {
-        console.error("Error fetching completed orders:", error)
+        if (error.name !== "AbortError") {
+          console.error("Error fetching completed orders:", error);
+        }
       }
-    }
+    };
 
-    fetchCompletedOrders()
-  }, [])
+    fetchCompletedOrders();
+
+    return () => {
+      controller.abort();
+    };
+  }, []);
 
   return (
-    <Card className="w-[250px]">
+    <Card className="w-full max-w-[250px]">
       <CardHeader>
         <CardTitle className="text-primary">{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
@@ -48,13 +57,21 @@ export default function CardBerhasil({ title, description, icon }: CardProps) {
         <div className="flex items-center">
           <div className="basis-1/4">{icon}</div>
           <div className="basis-3/4">
-            <CardTitle className="text-3xl font-bold text-primary">{total}</CardTitle>
+            <CardTitle className="text-3xl font-bold text-primary">
+              {completedTotal}
+            </CardTitle>
           </div>
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">
-        {/* Footer content here if needed */}
+        {/* Tambahkan elemen footer jika diperlukan */}
       </CardFooter>
     </Card>
-  )
-}
+  );
+};
+
+CardBerhasil.defaultProps = {
+  total: 0,
+};
+
+export default CardBerhasil;

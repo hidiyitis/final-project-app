@@ -1,8 +1,7 @@
-"use client"
+"use client";
 
-import React, { useEffect, useState } from "react"
-import { Pie, PieChart, Sector, Label } from "recharts"
-import { PieSectorDataItem } from "recharts/types/polar/Pie"
+import React, { useEffect, useState } from "react";
+import { Pie, PieChart, Sector, Label } from "recharts";
 
 import {
   Card,
@@ -11,24 +10,24 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   ChartContainer,
   ChartStyle,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
+} from "@/components/ui/chart";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
 interface ChartConfigItem {
-  label: string
-  color: string
+  label: string;
+  color: string;
 }
 
 const chartConfig: Record<string, ChartConfigItem> = {
@@ -38,48 +37,48 @@ const chartConfig: Record<string, ChartConfigItem> = {
   april: { label: "April", color: "hsl(var(--chart-4))" },
   may: { label: "May", color: "hsl(var(--chart-5))" },
   june: { label: "June", color: "hsl(var(--chart-6))" },
-}
+};
 
 export default function ChartPie() {
-  const id = "pie-interactive"
-  const [data, setData] = useState<
-    { month: string; desktop: number; fill: string }[]
-  >([])
-  const [activeMonth, setActiveMonth] = useState<string>("january")
-  const [loading, setLoading] = useState<boolean>(true)
+  const id = "pie-interactive";
+  const [data, setData] = useState<{ month: string; total: number; fill: string }[]>([]);
+  const [activeMonth, setActiveMonth] = useState<string>("january");
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/api/v1/dashboard/chart")
-        const result = await response.json()
+        const response = await fetch("/api/v1/dashboard/chart");
+        const result = await response.json();
 
         if (response.ok && result?.data?.monthlyOrders) {
+          // Process the monthlyOrders data from the backend
           const formattedData = result.data.monthlyOrders.map((item: any) => ({
             month: item.month.toLowerCase(),
-            desktop: item.total,
+            total: item.total,
             fill: chartConfig[item.month.toLowerCase()]?.color || "hsl(0, 0%, 80%)",
-          }))
-          setData(formattedData)
+          }));
+
+          setData(formattedData);
         }
       } catch (error) {
-        console.error("Failed to fetch chart data:", error)
+        console.error("Failed to fetch chart data:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   const activeIndex = React.useMemo(
     () => data.findIndex((item) => item.month === activeMonth),
     [data, activeMonth]
-  )
-  const months = React.useMemo(() => data.map((item) => item.month), [data])
+  );
+  const months = React.useMemo(() => data.map((item) => item.month), [data]);
 
   if (loading) {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
 
   return (
@@ -99,18 +98,14 @@ export default function ChartPie() {
           </SelectTrigger>
           <SelectContent align="end" className="rounded-xl">
             {months.map((key) => {
-              const config = chartConfig[key as keyof typeof chartConfig]
+              const config = chartConfig[key as keyof typeof chartConfig];
 
               if (!config) {
-                return null
+                return null;
               }
 
               return (
-                <SelectItem
-                  key={key}
-                  value={key}
-                  className="rounded-lg [&_span]:flex"
-                >
+                <SelectItem key={key} value={key} className="rounded-lg [&_span]:flex">
                   <div className="flex items-center gap-2 text-xs">
                     <span
                       className="flex h-3 w-3 shrink-0 rounded-sm"
@@ -121,7 +116,7 @@ export default function ChartPie() {
                     {config.label}
                   </div>
                 </SelectItem>
-              )
+              );
             })}
           </SelectContent>
         </Select>
@@ -133,13 +128,10 @@ export default function ChartPie() {
           className="mx-auto aspect-square w-full max-w-[300px]"
         >
           <PieChart>
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
             <Pie
               data={data}
-              dataKey="desktop"
+              dataKey="total"
               nameKey="month"
               innerRadius={60}
               strokeWidth={5}
@@ -170,7 +162,7 @@ export default function ChartPie() {
                           y={viewBox.cy}
                           className="fill-foreground text-3xl font-bold"
                         >
-                          {data[activeIndex]?.desktop.toLocaleString() || 0}
+                          {data[activeIndex]?.total.toLocaleString() || 0}
                         </tspan>
                         <tspan
                           x={viewBox.cx}
@@ -180,9 +172,9 @@ export default function ChartPie() {
                           Pesanan
                         </tspan>
                       </text>
-                    )
+                    );
                   }
-                  return null
+                  return null;
                 }}
               />
             </Pie>
@@ -195,5 +187,5 @@ export default function ChartPie() {
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }
