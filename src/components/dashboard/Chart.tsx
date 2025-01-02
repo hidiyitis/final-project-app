@@ -1,8 +1,7 @@
-"use client"
-import React from "react"
-import { useEffect, useState } from "react"
-import { TrendingDown, TrendingUp } from "lucide-react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+"use client";
+import React, { useEffect, useState } from "react";
+import { TrendingDown, TrendingUp } from "lucide-react";
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
 import {
   Card,
@@ -11,7 +10,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
@@ -19,12 +18,18 @@ import {
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
+} from "@/components/ui/chart";
 
-export const description = "An area chart with icons"
+export const description = "An area chart with icons";
+
+interface ChartData {
+  monthlyOrders: { month: string; total: number }[];
+  inProgressOrders: { total: number }[];
+  completedOrder: { total: number }[];
+}
 
 interface ChartProps {
-  data: any; 
+  data: ChartData;
 }
 
 // Konfigurasi chart
@@ -47,81 +52,42 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function Chart({ data }: ChartProps) {
-  const [chartData, setChartData] = useState([]) // State untuk data chart
-  const [loading, setLoading] = useState(true) // State untuk loading
-
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     try {
-  //       const response = await fetch("/api/v1/dashboard/chart") 
-  //       if (!response.ok) {
-  //         throw new Error("Failed to fetch data")
-  //       }
-  //       const result = await response.json()
-
-  //       // Normalisasi data dari backend
-  //       const normalizedData = result.data.monthlyOrders.map((order: any, index: number) => ({
-  //         month: order.month,
-  //         monthlyOrders: order.total,
-  //         inProgressOrders: result.data.inProgressOrders[index]?.total || 0,
-  //         completedOrder: result.data.completedOrder[index]?.total || 0,
-  //       }))
-
-  //       setChartData(normalizedData)
-  //     } catch (error) {
-  //       console.error("Error fetching data:", error)
-  //     } finally {
-  //       setLoading(false)
-  //     }
-  //   }
-
-  //   fetchData()
-  // }, [])
+  const [chartData, setChartData] = useState<any[]>([]);
 
   useEffect(() => {
-    if (data) {
-      // Normalisasi data dari backend jika data sudah ada
-      const normalizedData = data.monthlyOrders.map((order: any, index: number) => ({
-        month: order.month,
-        monthlyOrders: order.total,
+    // Normalisasi data dari props
+    if (data && data.monthlyOrders.length > 0) {
+      const normalizedData = data.monthlyOrders.map((order, index) => ({
+        month: order.month || `Month ${index + 1}`,
+        monthlyOrders: order.total || 0,
         inProgressOrders: data.inProgressOrders[index]?.total || 0,
         completedOrder: data.completedOrder[index]?.total || 0,
       }));
-
       setChartData(normalizedData);
-      setLoading(false);
     }
   }, [data]);
 
-  if (loading) {
-    return <p>Loading data...</p>
+  // Tampilkan pesan jika data kosong
+  if (!chartData.length) {
+    return <p className="text-center text-muted">No data available</p>;
   }
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-primary">Pemesanan</CardTitle>
-        <CardDescription>
-          Data pemesanan dalam kurun waktu 6 bulan
-        </CardDescription>
+        <CardDescription>Data pemesanan dalam kurun waktu 6 bulan</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <AreaChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
+          <AreaChart data={chartData} margin={{ left: 12, right: 12 }}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="month"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => value.slice(0, 3)} // Ambil 3 huruf pertama nama bulan
             />
             <ChartTooltip
               cursor={false}
@@ -169,5 +135,5 @@ export function Chart({ data }: ChartProps) {
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }

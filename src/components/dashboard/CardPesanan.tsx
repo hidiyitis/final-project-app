@@ -15,30 +15,33 @@ interface CardProps {
   title: string
   description: string
   icon: React.ReactNode
-  total: number | string
+  total?: number | string
 }
 
-export default function CardPesanan({ title, description, icon }: CardProps) {
-  const [total, setTotal] = useState<number>(0)
+const CardPesanan: React.FC<CardProps> = ({ title, description, icon, total = 0 }) => {
+  const [totalPesanan, setTotal] = useState<number>(Number(total));
 
   useEffect(() => {
     const fetchTotalOrders = async () => {
       try {
         const response = await fetch("/api/v1/dashboard/card") // Ganti dengan URL endpoint backend Anda
-        const data = await response.json()
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
         if (data && data.data) {
-          const totalPesanan =
+          const newTotal =
             (data.data.inProgressOrders || 0) +
-            (data.data.completedOrders || 0) // Menghitung total semua pesanan
-          setTotal(totalPesanan)
+            (data.data.completedOrders || 0); // Menghitung total semua pesanan
+          setTotal(newTotal);
         }
       } catch (error) {
-        console.error("Error fetching total orders:", error)
+        console.error("Error fetching total orders:", error);
       }
     }
 
-    fetchTotalOrders()
-  }, [])
+    fetchTotalOrders();
+  }, []);
 
   return (
     <Card className="w-[250px]">
@@ -50,7 +53,7 @@ export default function CardPesanan({ title, description, icon }: CardProps) {
         <div className="flex items-center">
           <div className="basis-1/4">{icon}</div>
           <div className="basis-3/4">
-            <CardTitle className="text-3xl font-bold text-primary">{total}</CardTitle>
+            <CardTitle className="text-3xl font-bold text-primary">{totalPesanan}</CardTitle>
           </div>
         </div>
       </CardContent>
@@ -60,3 +63,5 @@ export default function CardPesanan({ title, description, icon }: CardProps) {
     </Card>
   )
 }
+
+export default CardPesanan;
