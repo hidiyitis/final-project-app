@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { workerSchema } from './workerSchema';
+import { serviceSchema } from './serviceSchema';
 
 export const formOrderSchema = z.object({
   customerName: z.string(),
@@ -9,21 +11,6 @@ export const formOrderSchema = z.object({
   totalPrice: z.number(),
   picId: z.number()
 });
-
-export const workerSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  email: z.string().email(),
-  alamat: z.string(),
-});
-
-export const serviceSchema = z.object({
-  id: z.number(),
-  title: z.string(),
-  price: z.number(),
-  desc: z.string(),
-  status: z.string()
-})
 
 export const orderSchema = z.object({
   id: z.number(),

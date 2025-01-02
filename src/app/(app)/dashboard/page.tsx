@@ -1,7 +1,15 @@
-import Card from "@/components/dashboard/Card";
-import ChartRadial from "@/components/dashboard/CardRadial";
-import { Chart } from "@/components/dashboard/Chart";
-import ChartPie from "@/components/dashboard/CardPie";
+"use client";
+
+import { useEffect, useState } from "react";
+import CardPendapatan from "@/components/dashboard/CardPendapatan";
+import CardBerhasil from "@/components/dashboard/CardBerhasil";
+import CardPengerjaan from "@/components/dashboard/CardPengerjaan";
+import CardPesanan from "@/components/dashboard/CardPesanan";
+// import { ChartRadial } from "@/components/dashboard/CardRadial";
+// import { Chart } from "@/components/dashboard/Chart";
+// import ChartPie from "@/components/dashboard/CardPie";
+import { BASE_URL_API } from "@/lib/config";
+// import { card } from "@nextui-org/react";
 
 const ShoppingCartIcon = () => (
   <svg
@@ -90,44 +98,74 @@ const RevenueIcon = () => (
     strokeLinecap="round" 
     strokeLinejoin="round" 
     className="lucide lucide-circle-dollar-sign"
-    >
-      <circle cx="12" cy="12" r="10"/>
-      <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/>
-      <path d="M12 18V6"/>
+  >
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/>
+    <path d="M12 18V6"/>
   </svg>
 );
 
+export default function Dashboard() {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-const Pembelian = { href: '#', title: 'Pemesanan', description: 'Data Pembelian Bulanan', total: 120, icon: <ShoppingCartIcon /> };
-const Onprogres = { href: '#', title: 'Dalam Pengerjaan', description: 'Data Pesanan Dalam Proses', total: 80, icon: <ProgressIcon /> };
-const Berhasil = { href: '#', title: 'Berhasil', description: 'Data Pesanan Berhasil', total: 150, icon: <SuccessIcon /> };
-const Revenue = { href: '#', title: 'Total Pendapatan', description: '+20.1% Dari Bulan Terakhir', total: 15654000, icon: <RevenueIcon /> };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${BASE_URL_API}/dashboard/card`); // Ganti dengan endpoint backend Anda
+        if (!response.ok) throw new Error("Failed to fetch data");
+        const result = await response.json();
+        console.log(result.data);
+        
+        setData(result.data); 
+      } catch (err) {
+        const error = err as Error; 
+        console.error(error.message);
+        setError((err as Error).message)
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchData();
+  }, []);
 
+  if (loading) return <p className="text-center">Loading...</p>;
+  if (error) return <p className="text-red-500 text-center">Error: {error}</p>;
 
-export default async function Dashboard() {
+  const { totalEarnings, inProgressOrders, completedOrders } = data;
+
   return (
-    <main className="p-4 sm:p-5 md:p-8 lg:p-10">
-      <h1 className="text-2xl font-bold my-2">Dashboard</h1>
+    <main className="p-4 sm:p-5 md:p-8 lg:p-10 bg-gray-100 min-h-screen">
+      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-10 mt-7">
-        <div><Card title={Pembelian.title} description={Pembelian.description} total={Pembelian.total} icon={Pembelian.icon} /></div>
-        <div><Card title={Onprogres.title} description={Onprogres.description} total={Onprogres.total} icon={Onprogres.icon} /></div>
-        <div><Card title={Berhasil.title} description={Berhasil.description} total={Berhasil.total} icon={Berhasil.icon} /></div>
-        <div><Card title={Revenue.title} description={Revenue.description} total={Revenue.total} icon={Revenue.icon} /></div>
-      </div>
-
-      <div className="flex flex-col md:flex-row mt-6 md:mt-10 gap-4 md:gap-5 lg:gap-10">
-        <div className="basis-full md:basis-1/2 lg:basis-2/3"> 
-          <Chart/>
-        </div>
-        <div className="flex flex-col gap-4 md:gap-5 basis-full md:basis-1/2 lg:basis-1/3">
-          <ChartRadial/>
-        </div>
-        <div className="flex flex-col gap-4 md:gap-5 basis-full md:basis-1/2 lg:basis-1/3">
-          <ChartPie/>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        <CardPesanan
+          title="Pemesanan"
+          description="Total Riwayat Pesanan"
+          total={inProgressOrders+completedOrders}
+          icon={<ShoppingCartIcon />}
+        />
+        <CardPengerjaan
+          title="Dalam Pengerjaan"
+          description="Data Pesanan Dalam Proses"
+          total={inProgressOrders}
+          icon={<ProgressIcon />}
+        />
+        <CardBerhasil
+          title="Berhasil"
+          description="Data Pesanan Berhasil"
+          total={completedOrders}
+          icon={<SuccessIcon />}
+        />
+        <CardPendapatan
+          title="Total Pendapatan"
+          description="Total Pendapatan Tahun Terakhir"
+          total={totalEarnings}
+          icon={<RevenueIcon />}
+        />
       </div>
     </main>
   );
-};
+}

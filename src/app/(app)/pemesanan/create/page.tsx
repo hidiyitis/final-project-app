@@ -8,17 +8,14 @@ import { ArrowLeft } from "lucide-react"
 import { redirect, useRouter } from "next/navigation"
 import { useState } from 'react';
 import { useSession } from "next-auth/react"
+import { RedirectLoggin } from "@/components/RedirectLoggin"
 
- 
 function CreatePemesananPage() {
   const [message, setMessage] = useState<string>('')
   const [isError, setIsError] = useState(false)
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const router = useRouter()
-  const {data: session, status} = useSession();
-  if (status === 'unauthenticated') {
-    redirect('/')
-  }
+  const {data: session} = useSession();
   const handleSubmit = async (data: IFormOrder) => {
     try {
       const result = await fetchCreateOrder(data, session!);
@@ -52,6 +49,7 @@ function CreatePemesananPage() {
         <FormPemesanan onSubmit={handleSubmit}/>
         <DialogModal status={isError ? 'Gagal' : 'Berhasil'} message={message} isOpen={isSuccessModalOpen} onClose={handleSuccess}/>
       </div>
+      <RedirectLoggin/>
     </main>
   )
 }
