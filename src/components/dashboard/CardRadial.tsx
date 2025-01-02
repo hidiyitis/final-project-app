@@ -1,8 +1,9 @@
 "use client"
 
-import * as React from "react"
-import { TrendingUp } from "lucide-react"
-import { Label, Pie, PieChart } from "recharts"
+import * as React from "react";
+import { TrendingUp } from "lucide-react";
+import { Label, Pie, PieChart } from "recharts";
+import { useEffect, useState } from 'react';
 
 import {
   Card,
@@ -19,46 +20,44 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 
-export const description = "A donut chart with text"
+export const description = "Chart Pesanan Dalam Pengerjaan"
 
-const chartData = [
-  { browser: "chrome", visitors: 75, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 90, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 87, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 73, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 190, fill: "var(--color-other)" },
-]
-
+// Konfigurasi chart
 const chartConfig = {
   visitors: {
     label: "Visitors",
   },
-  chrome: {
-    label: "Chrome",
-    color: "hsl(var(--chart-1))",
-  },
-  safari: {
-    label: "Safari",
-    color: "hsl(var(--chart-2))",
-  },
-  firefox: {
-    label: "Firefox",
-    color: "hsl(var(--chart-3))",
-  },
-  edge: {
-    label: "Edge",
-    color: "hsl(var(--chart-4))",
-  },
-  other: {
-    label: "Other",
-    color: "hsl(var(--chart-5))",
-  },
 } satisfies ChartConfig
 
 export default function ChartRadial() {
-  const totalVisitors = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.visitors, 0)
-  }, [])
+  const [chartData, setChartData] = React.useState<{ browser: string; visitors: number; fill: string }[]>([]);
+  const [totalVisitors, setTotalVisitors] = React.useState(0);
+
+  useEffect(() => {
+    // Fetch data dari backend
+    const fetchData = async () => {
+      try {
+        const response = await fetch("/api/v1/dashboard/chart"); 
+        const data = await response.json();
+        if (data.success) {
+          const { inProgressOrders } = data.data;
+
+          // Data untuk chart
+          const chartValues = [
+            { browser: "Sedang Dikerjakan", visitors: inProgressOrders, fill: "var(--color-progress)" },
+            { browser: "Lainnya", visitors: 0, fill: "var(--color-other)" },
+          ];
+
+          setChartData(chartValues);
+          setTotalVisitors(inProgressOrders);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <Card className="flex flex-col">
@@ -124,5 +123,5 @@ export default function ChartRadial() {
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }

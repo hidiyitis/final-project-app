@@ -1,7 +1,7 @@
 "use client"
 
-import * as React from "react"
-import { Label, Pie, PieChart, Sector } from "recharts"
+import React, { useEffect, useState } from "react"
+import { Pie, PieChart, Sector, Label } from "recharts"
 import { PieSectorDataItem } from "recharts/types/polar/Pie"
 
 import {
@@ -13,7 +13,6 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import {
-  ChartConfig,
   ChartContainer,
   ChartStyle,
   ChartTooltip,
@@ -27,57 +26,61 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-export const description = "An interactive pie chart"
+interface ChartConfigItem {
+  label: string
+  color: string
+}
 
-const desktopData = [
-  { month: "january", desktop: 186, fill: "var(--color-january)" },
-  { month: "february", desktop: 305, fill: "var(--color-february)" },
-  { month: "march", desktop: 237, fill: "var(--color-march)" },
-  { month: "april", desktop: 173, fill: "var(--color-april)" },
-  { month: "may", desktop: 209, fill: "var(--color-may)" },
-]
-
-const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  desktop: {
-    label: "Desktop",
-  },
-  mobile: {
-    label: "Mobile",
-  },
-  january: {
-    label: "January",
-    color: "hsl(var(--chart-1))",
-  },
-  february: {
-    label: "February",
-    color: "hsl(var(--chart-2))",
-  },
-  march: {
-    label: "March",
-    color: "hsl(var(--chart-3))",
-  },
-  april: {
-    label: "April",
-    color: "hsl(var(--chart-4))",
-  },
-  may: {
-    label: "May",
-    color: "hsl(var(--chart-5))",
-  },
-} satisfies ChartConfig
+const chartConfig: Record<string, ChartConfigItem> = {
+  january: { label: "January", color: "hsl(var(--chart-1))" },
+  february: { label: "February", color: "hsl(var(--chart-2))" },
+  march: { label: "March", color: "hsl(var(--chart-3))" },
+  april: { label: "April", color: "hsl(var(--chart-4))" },
+  may: { label: "May", color: "hsl(var(--chart-5))" },
+  june: { label: "June", color: "hsl(var(--chart-6))" },
+}
 
 export default function ChartPie() {
   const id = "pie-interactive"
-  const [activeMonth, setActiveMonth] = React.useState(desktopData[0].month)
+  const [data, setData] = useState<
+    { month: string; desktop: number; fill: string }[]
+  >([])
+  const [activeMonth, setActiveMonth] = useState<string>("january")
+  const [loading, setLoading] = useState<boolean>(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("/api/v1/dashboard/chart")
+        const result = await response.json()
+
+        if (response.ok && result?.data?.monthlyOrders) {
+          const formattedData = result.data.monthlyOrders.map((item: any) => ({
+            month: item.month.toLowerCase(),
+            desktop: item.total,
+            fill: chartConfig[item.month.toLowerCase()]?.color || "hsl(0, 0%, 80%)",
+          }))
+          setData(formattedData)
+        }
+      } catch (error) {
+        console.error("Failed to fetch chart data:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
 
   const activeIndex = React.useMemo(
-    () => desktopData.findIndex((item) => item.month === activeMonth),
-    [activeMonth]
+    () => data.findIndex((item) => item.month === activeMonth),
+    [data, activeMonth]
   )
-  const months = React.useMemo(() => desktopData.map((item) => item.month), [])
+  const months = React.useMemo(() => data.map((item) => item.month), [data])
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <Card data-chart={id} className="flex flex-col">
@@ -112,10 +115,10 @@ export default function ChartPie() {
                     <span
                       className="flex h-3 w-3 shrink-0 rounded-sm"
                       style={{
-                        backgroundColor: `var(--color-${key})`,
+                        backgroundColor: config.color,
                       }}
                     />
-                    {config?.label}
+                    {config.label}
                   </div>
                 </SelectItem>
               )
@@ -135,22 +138,19 @@ export default function ChartPie() {
               content={<ChartTooltipContent hideLabel />}
             />
             <Pie
-              data={desktopData}
+              data={data}
               dataKey="desktop"
               nameKey="month"
               innerRadius={60}
               strokeWidth={5}
               activeIndex={activeIndex}
-              activeShape={({
-                outerRadius = 0,
-                ...props
-              }: PieSectorDataItem) => (
+              activeShape={(props: any) => (
                 <g>
-                  <Sector {...props} outerRadius={outerRadius + 10} />
+                  <Sector {...props} outerRadius={props.outerRadius + 10} />
                   <Sector
                     {...props}
-                    outerRadius={outerRadius + 25}
-                    innerRadius={outerRadius + 12}
+                    outerRadius={props.outerRadius + 25}
+                    innerRadius={props.outerRadius + 12}
                   />
                 </g>
               )}
@@ -170,7 +170,7 @@ export default function ChartPie() {
                           y={viewBox.cy}
                           className="fill-foreground text-3xl font-bold"
                         >
-                          {desktopData[activeIndex].desktop.toLocaleString()}
+                          {data[activeIndex]?.desktop.toLocaleString() || 0}
                         </tspan>
                         <tspan
                           x={viewBox.cx}
@@ -182,13 +182,14 @@ export default function ChartPie() {
                       </text>
                     )
                   }
+                  return null
                 }}
               />
             </Pie>
           </PieChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex-col gap-2 text-sm">
         <div className="leading-none text-muted-foreground">
           Menampilkan Total Pesanan Berhasil Dalam 6 Bulan Terakhir
         </div>

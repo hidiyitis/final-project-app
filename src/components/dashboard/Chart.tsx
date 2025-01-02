@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { TrendingDown, TrendingUp } from "lucide-react"
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 
@@ -22,29 +23,61 @@ import {
 
 export const description = "An area chart with icons"
 
-const chartData = [
-  { month: "January", packet: 186, general: 80 },
-  { month: "February", packet: 305, general: 200 },
-  { month: "March", packet: 237, general: 120 },
-  { month: "April", packet: 73, general: 190 },
-  { month: "May", packet: 209, general: 130 },
-  { month: "June", packet: 214, general: 140 },
-]
-
+// Konfigurasi chart
 const chartConfig = {
-  packet: {
-    label: "packet",
+  monthlyOrders: {
+    label: "Monthly Orders",
     color: "hsl(var(--chart-1))",
+    icon: TrendingUp,
+  },
+  inProgressOrders: {
+    label: "In-Progress Orders",
+    color: "hsl(var(--chart-2))",
     icon: TrendingDown,
   },
-  general: {
-    label: "general",
-    color: "hsl(var(--chart-2))",
+  completedOrder: {
+    label: "Completed Orders",
+    color: "hsl(var(--chart-3))",
     icon: TrendingUp,
   },
 } satisfies ChartConfig
 
 export function Chart() {
+  const [chartData, setChartData] = useState([]) // State untuk data chart
+  const [loading, setLoading] = useState(true) // State untuk loading
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await fetch("/api/v1/dashboard/chart") 
+        if (!response.ok) {
+          throw new Error("Failed to fetch data")
+        }
+        const result = await response.json()
+
+        // Normalisasi data dari backend
+        const normalizedData = result.data.monthlyOrders.map((order: any, index: number) => ({
+          month: order.month,
+          monthlyOrders: order.total,
+          inProgressOrders: result.data.inProgressOrders[index]?.total || 0,
+          completedOrder: result.data.completedOrder[index]?.total || 0,
+        }))
+
+        setChartData(normalizedData)
+      } catch (error) {
+        console.error("Error fetching data:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  if (loading) {
+    return <p>Loading data...</p>
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -76,19 +109,27 @@ export function Chart() {
               content={<ChartTooltipContent indicator="line" />}
             />
             <Area
-              dataKey="general"
+              dataKey="monthlyOrders"
               type="natural"
-              fill="var(--color-general)"
+              fill="var(--color-monthlyOrders)"
               fillOpacity={0.4}
-              stroke="var(--color-general)"
+              stroke="var(--color-monthlyOrders)"
               stackId="a"
             />
             <Area
-              dataKey="packet"
+              dataKey="inProgressOrders"
               type="natural"
-              fill="var(--color-packet)"
+              fill="var(--color-inProgressOrders)"
               fillOpacity={0.4}
-              stroke="var(--color-packet)"
+              stroke="var(--color-inProgressOrders)"
+              stackId="a"
+            />
+            <Area
+              dataKey="completedOrder"
+              type="natural"
+              fill="var(--color-completedOrder)"
+              fillOpacity={0.4}
+              stroke="var(--color-completedOrder)"
               stackId="a"
             />
             <ChartLegend content={<ChartLegendContent />} />
@@ -99,10 +140,11 @@ export function Chart() {
         <div className="flex w-full items-start gap-2 text-sm">
           <div className="grid gap-2">
             <div className="flex items-center gap-2 font-medium leading-none">
-              Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+              Data pemesanan berdasarkan status pesanan{" "}
+              <TrendingUp className="h-4 w-4" />
             </div>
             <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              January - June 2024
+              Data tahun {new Date().getFullYear()}
             </div>
           </div>
         </div>
