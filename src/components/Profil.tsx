@@ -14,12 +14,14 @@ export const ProfileDropdown = () => {
   };
 
   const handleLogout = async () => {
+    setIsOpen(false)
     await signOut({
       redirectTo: `/`
     })
   };
 
   const handleProfile = () => {
+    setIsOpen(false)
     redirect('/profile')
   };
 

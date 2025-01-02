@@ -44,7 +44,9 @@ export default function Pemesanan() {
 
   const handleCloseModal = ()=>{
     setOpenModal(false);
-    window.location.reload();
+    if (error?.toLocaleLowerCase().includes('jwt')) {
+      redirect('/')
+    }
   }
   return (
     <main className="px-10">

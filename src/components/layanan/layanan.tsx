@@ -3,8 +3,6 @@ import { useState } from "react";
 import AlertDialogComponent from "./alertDialog";
 import EditServices from "./EditService";
 import { IService } from "@/lib/interfaces/serviceInterface";
-import { fetchDeleteService } from "@/lib/apis/serviceApi";
-import { useSession } from "next-auth/react";
 
 interface ServiceProps {
   ser: IService;
@@ -13,27 +11,27 @@ interface ServiceProps {
 }
 export default function ServiceCard({ ser, onUpdate, onDelete }: ServiceProps) {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
-  const [infoMessage, setInfoMessage] = useState("");
-  const { data: session } = useSession();
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   const handleDelete = async () => {
-    if (!session) {
-      console.error("User is not authenticated");
-      return;
-    }
-    try {
-      await fetchDeleteService(ser.id, session);
       onDelete(ser.id);
-      setIsInfoDialogOpen(true);
-      setInfoMessage(`Layanan ${ser.title} berhasil dihapus`);
-    } catch (error: any) {
-      setInfoMessage(error.message || "Gagal menghapus layanan");
-      setIsInfoDialogOpen(true);
-    } finally {
       setIsConfirmDialogOpen(false);
-    }
+      setIsAlertOpen(true);
   };
+
+  // const handleDelete = async () => {
+  //   if (!session) {
+  //     console.error("User is not authenticated");
+  //     return;
+  //   }
+  //   try {
+  //     await fetchDeleteService(ser.id, session);
+  //     onDelete(ser.id);
+  //     setIsConfirmDialogOpen(false);
+  //   } catch (error: any) {
+  //     setIsInfoDialogOpen(true);
+  //   }
+  // };
   
 
   const handleDeleteClick = () => {
@@ -80,10 +78,10 @@ export default function ServiceCard({ ser, onUpdate, onDelete }: ServiceProps) {
 
       <AlertDialogComponent
         mode="confirm"
-        title={infoMessage}
-        onConfirm={() => setIsInfoDialogOpen(false)}
-        open={isInfoDialogOpen}
-        setOpen={setIsInfoDialogOpen}
+        title={ser.title}
+        onConfirm={() => setIsAlertOpen(false)}
+        open={isAlertOpen}
+        setOpen={setIsAlertOpen}
       />
     </>
   );

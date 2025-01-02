@@ -27,7 +27,6 @@ export default function ServiceManager({ onAdd }: ServiceProps) {
 
   const handeAddClick = () => {
     setIsDialogOpen(false);
-    setServiceName("");
   }
 
   const handleAddService = async () => {
@@ -51,7 +50,7 @@ export default function ServiceManager({ onAdd }: ServiceProps) {
       setIsDialogOpen(true);
       onAdd();
     } catch (error) {
-      alert(`Gagal menambahkan layanan: ${(error as Error).message}`);
+      console.error("Gagal menambahkan layanan:", error);
     }
 
   };
@@ -110,7 +109,6 @@ export default function ServiceManager({ onAdd }: ServiceProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Komponen AlertDialog */}
       <AlertDialogComponent
         mode={dialogMode}
         title={serviceName}

@@ -14,7 +14,7 @@ import { IService } from "@/lib/interfaces/serviceInterface";
 import AlertDialogComponent from "./alertDialog";
 
 interface EditServicesProps {
-  service: IService; // Data layanan yang akan diedit
+  service: IService;
   onUpdate: (id: number, updatedService: Partial<IService>) => void; // Callback untuk update
 }
 
@@ -29,6 +29,7 @@ export default function EditServices({ service, onUpdate }: EditServicesProps) {
   const [servicePrice, setServicePrice] = useState<number | 0>(0);
   const [serviceStatus, setServiceStatus] = useState<ServiceStatus>(ServiceStatus.AVAILABLE);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   useEffect(() => {
     if (service) {
@@ -48,16 +49,12 @@ export default function EditServices({ service, onUpdate }: EditServicesProps) {
     };
 
     onUpdate(service.id, updatedService);
-  };
-
-  const handeEditClick = () => {
     setIsDialogOpen(false);
-    setServiceName("");
-  }
+    setIsAlertOpen(true);
+  };
 
   return (
     <div>
-      {/* Dialog untuk menambah atau mengedit layanan */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
           <Edit2 className="w-5"></Edit2>
@@ -123,9 +120,9 @@ export default function EditServices({ service, onUpdate }: EditServicesProps) {
       <AlertDialogComponent
               mode="edit"
               title={serviceName}
-              onConfirm={handeEditClick}
-              open={isDialogOpen}
-              setOpen={setIsDialogOpen}
+              onConfirm={() => setIsAlertOpen(false)}
+              open={isAlertOpen}
+              setOpen={setIsAlertOpen}
       />
     </div>
   );

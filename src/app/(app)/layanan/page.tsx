@@ -1,7 +1,7 @@
 'use client';
 import ServiceManager from "@/components/layanan/ServiceManager";
 import ServiceCard from "@/components/layanan/layanan";
-import { fetchServices, fetchUpdateService } from "@/lib/apis/serviceApi";
+import { fetchDeleteService, fetchServices, fetchUpdateService } from "@/lib/apis/serviceApi";
 import { IService } from "@/lib/interfaces/serviceInterface";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
@@ -31,8 +31,13 @@ export default function Home() {
     }
   }
 
-  const handleDelete = (id: number) => {
-    setServices(services.filter(service => service.id !== id));
+  const handleDelete = async (id: number) => {
+    try {
+      await fetchDeleteService(id, session!);
+      getServices();
+    } catch {
+      console.error("Gagal menghapus layanan:", error);
+    }
   };
 
   const filteredServices = services.filter((service) => {
@@ -74,9 +79,9 @@ export default function Home() {
         </div>
 
         {loading ? (
-          <p className="text-center">Loading...</p> // Menampilkan pesan loading saat data sedang di-fetch
+          <p className="text-center">Loading...</p>
         ) : error ? (
-          <p className="text-center text-red-500">Error: {error}</p> // Menampilkan pesan error jika terjadi kesalahan
+          <p className="text-center text-red-500">Error: {error}</p>
         ) : (
           <table className="w-full table-auto">
             <thead>
@@ -94,7 +99,7 @@ export default function Home() {
                 key={service.id} 
                 ser={service}
                 onUpdate={handleUpdate}
-                onDelete={handleDelete}/> // Menampilkan data layanan dalam tabel
+                onDelete={handleDelete}/>
               ))}
             </tbody>
           </table>

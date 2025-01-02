@@ -34,14 +34,14 @@ export default function AlertDialogComponent({
     ? `Akan Menghapus Layanan ${title}`
     : mode === "edit"
     ? `Layanan ${title} berhasil diupdate`
-    : `${title}`;
+    : `Layanan ${title} berhasil dihapus`;
 
   const dialogDescription =
     mode === "delete" && !message
       ? "Apakah Anda yakin ingin menghapus layanan ini?"
       : null;
 
-  const actionText = mode === "add" || mode === "confirm" ? "OK" : "Hapus";
+  const actionText = mode === "add" || mode === "confirm" || mode === "edit" ? "OK" : "Hapus";
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
