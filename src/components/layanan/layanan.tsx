@@ -1,44 +1,65 @@
-import { Switch } from "@/components/ui/switch";
-import { Trash2, Edit } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useRouter } from "next/router";
 import AlertDialogComponent from "./alertDialog";
 import EditServices from "./EditService";
+import { IService } from "@/lib/interfaces/serviceInterface";
+import { fetchDeleteService } from "@/lib/apis/serviceApi";
+import { useSession } from "next-auth/react";
 
 interface ServiceProps {
-  ser: { id: string; title: string; price: number; desc: string };
+  ser: IService;
+  onUpdate: (id: number, updatedService: Partial<IService>) => void;
+  onDelete: (id: number) => void;
 }
+export default function ServiceCard({ ser, onUpdate, onDelete }: ServiceProps) {
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
+  const [infoMessage, setInfoMessage] = useState("");
+  const { data: session } = useSession();
 
-export default function ServiceCard({ ser }: ServiceProps) {
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false); // Untuk konfirmasi hapus
-  const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false); // Untuk informasi setelah hapus
-  const [infoMessage, setInfoMessage] = useState(""); // Pesan dinamis untuk dialog informasi
-  //const router = useRouter(); 
-
-  const handleDelete = () => {
-    setIsConfirmDialogOpen(false); // Tutup dialog konfirmasi
-    setInfoMessage(`Layanan ${ser.title} berhasil dihapus`); // Atur pesan informasi
-    setIsInfoDialogOpen(true); // Buka dialog informasi
+  const handleDelete = async () => {
+    if (!session) {
+      console.error("User is not authenticated");
+      return;
+    }
+    try {
+      await fetchDeleteService(ser.id, session);
+      onDelete(ser.id);
+      setIsInfoDialogOpen(true);
+      setInfoMessage(`Layanan ${ser.title} berhasil dihapus`);
+    } catch (error: any) {
+      setInfoMessage(error.message || "Gagal menghapus layanan");
+      setIsInfoDialogOpen(true);
+    } finally {
+      setIsConfirmDialogOpen(false);
+    }
   };
+  
 
   const handleDeleteClick = () => {
-    setIsConfirmDialogOpen(true); // Buka dialog konfirmasi
+    setIsConfirmDialogOpen(true);
   };
 
   return (
     <>
       <tr className="px-4 py-2 text-center hover:bg-slate-100 leading-4">
         <td className="px-4 py-2 text-left">{ser.title}</td>
-        <td className="px-4 py-2 text-center">{ser.price}</td>
+        <td className="px-4 py-2 text-center">
+          {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(ser.price)}
+        </td>
         <td className="px-4 py-2 text-left">{ser.desc}</td>
-        <td className="px-4 py-2 text-center hover:scale-150">
-          <Switch />
+        <td> 
+          <span
+          className={`inline-block px-2 py-1 text-xs font-semibold rounded-full 
+            ${ser.status === 'AVAILABLE' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+          {ser.status === 'AVAILABLE' ? 'Tersedia' : 'Tidak Tersedia'}
+          </span>
         </td>
         <td>
           <button
             className="bg-transparent border-0 p-2 rounded-md hover:bg-blue-200"
           >
-            <EditServices/>
+            <EditServices service={ser} onUpdate={onUpdate} />
           </button>
           <button
             className="bg-transparent border-0 p-2 rounded-md hover:bg-red-200"
@@ -49,7 +70,6 @@ export default function ServiceCard({ ser }: ServiceProps) {
         </td>
       </tr>
 
-      {/* AlertDialogComponent untuk konfirmasi hapus */}
       <AlertDialogComponent
         mode="delete"
         title={ser.title}
@@ -58,11 +78,10 @@ export default function ServiceCard({ ser }: ServiceProps) {
         setOpen={setIsConfirmDialogOpen}
       />
 
-      {/* AlertDialogComponent untuk informasi penghapusan */}
       <AlertDialogComponent
-        mode="confirm" // Tetap menggunakan mode "add" untuk tampilan dialog
-        title={infoMessage} // Pesan informasi dinamis
-        onConfirm={() => setIsInfoDialogOpen(false)} // Tutup dialog informasi
+        mode="confirm"
+        title={infoMessage}
+        onConfirm={() => setIsInfoDialogOpen(false)}
         open={isInfoDialogOpen}
         setOpen={setIsInfoDialogOpen}
       />

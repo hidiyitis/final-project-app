@@ -8,56 +8,52 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Edit2 } from "lucide-react";
+import { IService } from "@/lib/interfaces/serviceInterface";
+import AlertDialogComponent from "./alertDialog";
 
-export default function EditServices() {
+interface EditServicesProps {
+  service: IService; // Data layanan yang akan diedit
+  onUpdate: (id: number, updatedService: Partial<IService>) => void; // Callback untuk update
+}
+
+enum ServiceStatus {
+  AVAILABLE = "AVAILABLE",
+  NON_AVAILABLE = "NON_AVAILABLE",
+}
+
+export default function EditServices({ service, onUpdate }: EditServicesProps) {
   const [serviceName, setServiceName] = useState<string>("");
-  
   const [serviceDescription, setServiceDescription] = useState<string>("");
-  const [servicePrice, setServicePrice] = useState<number | "">("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false); // Untuk AlertDialog
-  const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
+  const [servicePrice, setServicePrice] = useState<number | 0>(0);
+  const [serviceStatus, setServiceStatus] = useState<ServiceStatus>(ServiceStatus.AVAILABLE);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Fungsi untuk membuka dialog tambah
-  const handleAdd = () => {
-    setDialogMode("add");
-    setIsDialogOpen(true);
-    setServiceName("");
-    setServiceDescription("");
-    setServicePrice("");
-  };
-
-  // Fungsi untuk membuka dialog edit dengan data awal
-  const handleEdit = (service: {
-    name: string;
-    description: string;
-    price: number;
-  }) => {
-    setDialogMode("edit");
-    setIsDialogOpen(true);
-    setServiceName(service.name);
-    setServiceDescription(service.description);
-    setServicePrice(service.price);
-  };
-
-  // Fungsi untuk menyimpan data setelah edit
-  const handleSave = () => {
-    if (dialogMode === "edit") {
-      console.log("Layanan diperbarui:", {
-        name: serviceName,
-        description: serviceDescription,
-        price: servicePrice,
-      });
-    } else {
-      console.log("Layanan baru ditambahkan:", {
-        name: serviceName,
-        description: serviceDescription,
-        price: servicePrice,
-      });
+  useEffect(() => {
+    if (service) {
+      setServiceName(service.title);
+      setServiceDescription(service.desc);
+      setServicePrice(service.price);
+      setServiceStatus(service.status);
     }
-    setIsDialogOpen(false);
+  }, [service]);
+
+  const handleSave = () => {
+    const updatedService = {
+      title: serviceName,
+      desc: serviceDescription,
+      price: servicePrice,
+      status: serviceStatus,
+    };
+
+    onUpdate(service.id, updatedService);
   };
+
+  const handeEditClick = () => {
+    setIsDialogOpen(false);
+    setServiceName("");
+  }
 
   return (
     <div>
@@ -96,6 +92,17 @@ export default function EditServices() {
                   onChange={(e) => setServicePrice(Number(e.target.value))}
                   className="border p-2 rounded w-full mb-2"
                 />
+                <div className="mb-2">
+                  <label className="block text-gray-700">Status</label>
+                  <select
+                    value={serviceStatus}
+                    onChange={(e) => setServiceStatus(e.target.value as ServiceStatus)}
+                    className="border p-2 rounded w-full"
+                  >
+                    <option value={ServiceStatus.AVAILABLE}>Tersedia</option>
+                    <option value={ServiceStatus.NON_AVAILABLE}>Tidak Tersedia</option>
+                  </select>
+                </div>
               </form>
             </div>
           </div>
@@ -112,6 +119,14 @@ export default function EditServices() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialogComponent
+              mode="edit"
+              title={serviceName}
+              onConfirm={handeEditClick}
+              open={isDialogOpen}
+              setOpen={setIsDialogOpen}
+      />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 import ServiceManager from "@/components/layanan/ServiceManager";
 import ServiceCard from "@/components/layanan/layanan";
-import { fetchServices } from "@/lib/apis/serviceApi";
+import { fetchServices, fetchUpdateService } from "@/lib/apis/serviceApi";
 import { IService } from "@/lib/interfaces/serviceInterface";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
@@ -30,7 +30,27 @@ export default function Home() {
       setLoading(false);
     }
   }
+
+  const handleDelete = (id: number) => {
+    setServices(services.filter(service => service.id !== id));
+  };
+
+  const filteredServices = services.filter((service) => {
+    return (
+      service.title.toLowerCase().includes(query.toLowerCase()) ||
+      service.desc.toLowerCase().includes(query.toLowerCase())
+    );
+  });
   
+  const handleUpdate = async (id: number, updatedService: Partial<IService>) => {
+    try {
+      await fetchUpdateService(id, updatedService, session);
+      getServices();
+    } catch (error) {
+      console.error("Gagal memperbarui layanan:", error);
+    }
+  };
+
   useEffect(() => {
     getServices();
   }, []);
@@ -42,7 +62,7 @@ export default function Home() {
           <div className="text-center ">
           <label className="text-xl font-bold mb-4 text-gray-700 sticky top-0">Layanan Kebersihan Tersedia</label>
           </div>
-          <ServiceManager/>
+          <ServiceManager onAdd={getServices}/>
         </div>
         <div className="m-4">
           <input
@@ -69,8 +89,12 @@ export default function Home() {
               </tr>
             </thead>
             <tbody>
-              {services.map((service) => (
-                <ServiceCard key={service.id} ser={service} /> // Menampilkan data layanan dalam tabel
+              {filteredServices.map((service) => (
+                <ServiceCard 
+                key={service.id} 
+                ser={service}
+                onUpdate={handleUpdate}
+                onDelete={handleDelete}/> // Menampilkan data layanan dalam tabel
               ))}
             </tbody>
           </table>

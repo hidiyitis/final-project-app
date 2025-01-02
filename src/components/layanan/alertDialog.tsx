@@ -10,12 +10,12 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface AlertDialogProps {
-  mode: "add" | "delete" | "confirm"; // Mode dialog: add, delete, atau confirm
-  title: string; // Nama layanan
-  message?: string; // Pesan khusus untuk ditampilkan (opsional)
-  onConfirm: () => void; // Fungsi yang dijalankan saat konfirmasi
-  open: boolean; // Status apakah dialog terbuka
-  setOpen: (value: boolean) => void; // Fungsi untuk mengubah status dialog
+  mode: "add" | "delete" | "confirm" | "edit";
+  title: string;
+  message?: string;
+  onConfirm: () => void;
+  open: boolean;
+  setOpen: (value: boolean) => void;
 }
 
 export default function AlertDialogComponent({
@@ -26,22 +26,21 @@ export default function AlertDialogComponent({
   open,
   setOpen,
 }: AlertDialogProps) {
-  // Tentukan pesan header berdasarkan mode
   const dialogMessage = message
-    ? message // Gunakan pesan dinamis jika tersedia
+    ? message
     : mode === "add"
     ? `Layanan ${title} berhasil ditambah`
     : mode === "delete"
     ? `Akan Menghapus Layanan ${title}`
+    : mode === "edit"
+    ? `Layanan ${title} berhasil diupdate`
     : `${title}`;
 
-  // Tentukan deskripsi tambahan (hanya untuk mode delete)
   const dialogDescription =
     mode === "delete" && !message
       ? "Apakah Anda yakin ingin menghapus layanan ini?"
       : null;
 
-  // Tentukan teks tombol aksi utama
   const actionText = mode === "add" || mode === "confirm" ? "OK" : "Hapus";
 
   return (

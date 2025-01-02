@@ -28,32 +28,6 @@ export async function fetchServices(query: string, session: Session) {
   return parsedData.data;
 }
 
-export async function fetchOrderById(id: Number, session: Session) {
-  const token = session.user.accessToken;
-  
-  const response = await fetch(`${BASE_URL_API}/orders/${id}`, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    }
-  });
-
-  const result = await response.json();
-  if (!result.status) {
-    throw new Error(result?.message)
-  }
-  
-
-  // Validate data using Zod
-  const parsedData = serviceSchema.safeParse(result.data);
-  if (!parsedData.success) {
-    throw new Error('Validation failed');
-  }
-
-  return parsedData.data;
-}
-
 
 export async function fetchCreateService(data: IService, session: Session) {
   const token = session.user.accessToken
@@ -91,4 +65,22 @@ export async function fetchUpdateService(id: number, data: IService, session: Se
   }
 
   return result;
+}
+
+export async function fetchDeleteService(id:number, session: Session) {
+  const token = session.user.accessToken;
+  console.log("ID yang dikirim ke API:", id);
+
+  const response = await fetch(`${BASE_URL_API}/services/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+    const result = await response.json();
+    if (!result.status) {
+      throw new Error(result?.message)
+    }
+    return result;
 }

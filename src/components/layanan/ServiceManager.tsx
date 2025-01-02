@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import {
   Dialog,
   DialogClose,
@@ -14,20 +13,17 @@ import AlertDialogComponent from "./alertDialog";
 import { fetchCreateService } from "@/lib/apis/serviceApi";
 import { useSession } from "next-auth/react";
 
-export default function ServiceManager() {
+interface ServiceProps {
+  onAdd: () => void;
+}
+
+export default function ServiceManager({ onAdd }: ServiceProps) {
   const [serviceName, setServiceName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [price, setPrice] = useState<number>(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { data: session } = useSession();
   const [dialogMode, setDialogMode] = useState<"add" | "delete">("add");
-
-  // Fungsi untuk membuka dialog tambah
-  const handleAdd = () => {
-    setDialogMode("add");
-    setIsDialogOpen(true);
-    setServiceName("");
-  };
 
   const handeAddClick = () => {
     setIsDialogOpen(false);
@@ -47,23 +43,21 @@ export default function ServiceManager() {
     };
 
     try {
-      if (!session) {
-        throw new Error("Session tidak tersedia, silakan login ulang!");
-      }
       await fetchCreateService(newService, session);
       setServiceName("");
       setDescription("");
       setPrice(0);
       setDialogMode("add");
       setIsDialogOpen(true);
+      onAdd();
     } catch (error) {
       alert(`Gagal menambahkan layanan: ${(error as Error).message}`);
     }
+
   };
 
   return (
     <div>
-      {/* Dialog untuk menambah layanan */}
       <Dialog>
         <DialogTrigger asChild>
           <Button>Tambah Layanan</Button>
