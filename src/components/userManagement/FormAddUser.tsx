@@ -1,175 +1,153 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Check, ChevronsUpDown } from "lucide-react";
-import {
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  Command,
-} from "../ui/command";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { IFormUser } from "@/lib/interfaces/userInterface";
+import { formUserSchema } from "@/lib/schemas/userSchema";
+import DialogModal from "../DialogModal";
+import { ComboBox } from "@/components/ComboBox";
 
-const formSchema = z.object({
-  customerName: z.string().min(1, {
-    message: "Required",
-  }),
-  address: z.string().min(1, {
-    message: "Required",
-  }),
-  service: z.string(),
-  pic: z.string(),
-  price: z.number(),
-});
-
-const listService: ILayanan[] = [
-  {
-    id: 1,
-    title: "Maling Motor",
-    price: 25_000,
-  },
-  {
-    id: 2,
-    title: "Cuci Gudang",
-    price: 25_000,
-  },
-  {
-    id: 3,
-    title: "Manasis Kompor",
-    price: 25_000,
-  },
-];
-
-function FormPemesanan({
-  closeModal,
-  pemesanan,
-}: {
-  closeModal?: () => void;
-  pemesanan?: IPemesanan;
-}) {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: pemesanan
-      ? {
-          customerName: pemesanan.customerName,
-          address: pemesanan.address,
-          pic: pemesanan.pic,
-          service: pemesanan.service,
-          price: pemesanan.price,
-        }
-      : {
-          customerName: "",
-          address: "",
-          pic: "",
-          service: "",
-          price: 0,
-        },
-  });
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    if (pemesanan) {
-      if (closeModal) {
-        closeModal();
-      }
-    }
-  }
-
-  return (
-    <div className="">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-          <FormField
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input placeholder="Username" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="Email" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nama Lengkap</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nama Lengkap" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormItem>
-            <FormLabel>Role</FormLabel>
-          </FormItem>
-          <FormField
-            name="role"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <select {...field} className="border rounded p-2">
-                    <option disabled>Select a role</option>
-                    <option value="admin">Admin</option>
-                    <option value="super_admin">Super Admin</option>
-                    <option value="user">User</option>
-                  </select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status</FormLabel>
-                <FormControl>
-                  <Input placeholder="Status" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit" size={"lg"}>
-            Simpan
-          </Button>
-        </form>
-      </Form>
-    </div>
-  );
+interface IUserProps {
+  initialValues?: IFormUser; // initialValues untuk edit
+  onSubmit: (data: IFormUser) => void;
 }
 
-export default FormPemesanan;
+export default function FormAddUser({ initialValues, onSubmit }: IUserProps) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+    setValue,
+    watch,
+  } = useForm<IFormUser>({
+    resolver: zodResolver(formUserSchema),
+    defaultValues: initialValues ?? {},
+  });
+
+  console.log("Form values:", getValues());
+  console.log("Form errors:", errors);
+
+  const isEditMode = !!initialValues;
+
+  const STATUS = ["AKTIF", "TIDAK_AKTIF"];
+  const handleStatusSelect = (value: string) => {
+    const selectedStatus = STATUS.find((status) => status === value);
+    if (selectedStatus) {
+      setValue("status", selectedStatus);
+    }
+  };
+
+  const accessRole = ["ADMIN", "SUPER_ADMIN"];
+  const handleRoleSelect = (value: string) => {
+    const selectedStatus = accessRole.find(
+      (accessRole) => accessRole === value
+    );
+    if (selectedStatus) {
+      setValue("accessRole", selectedStatus);
+    }
+  };
+
+  // Menggunakan useEffect untuk mengupdate nilai form jika initialValues berubah
+  useEffect(() => {
+    if (initialValues) {
+      // Menyesuaikan nilai form saat pertama kali dimuat jika initialValues ada
+      setValue("username", initialValues.username);
+      setValue("name", initialValues.name);
+      setValue("accessRole", initialValues.accessRole);
+    }
+  }, [initialValues, setValue]);
+
+  return (
+    <form
+      onSubmit={handleSubmit((data) => {
+        console.log("Submitting data:", data); // Debugging
+        onSubmit(data); // Kirim data ke parent component
+      })}
+      className="space-y-4"
+    >
+      <div>
+        <label htmlFor="username" className="block text-sm font-medium">
+          Username
+        </label>
+        <Input id="username" {...register("username")} />
+        {errors.username && (
+          <p className="mt-2 text-sm text-red-600">{errors.username.message}</p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="password" className="block text-sm font-medium">
+          Password
+        </label>
+        <Input id="password" type="password" {...register("password")} />
+        {errors.password && (
+          <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="name" className="block text-sm font-medium">
+          Name
+        </label>
+        <Input id="name" {...register("name")} />
+        {errors.name && (
+          <p className="mt-2 text-sm text-red-600">{errors.name.message}</p>
+        )}
+      </div>
+
+      <div>
+        <label
+          htmlFor="accessRole"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Access Role
+        </label>
+        <ComboBox
+          items={accessRole.map((e) => ({
+            label: e.split("_").join(" "),
+            value: e,
+          }))}
+          onSelect={handleRoleSelect}
+          value={watch("accessRole") ?? ""}
+          placeholder="Select a Role"
+        />
+        {errors.accessRole && (
+          <p className="mt-2 text-sm text-red-600">
+            {errors.accessRole.message}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label
+          htmlFor="status"
+          className="block text-sm font-medium text-gray-700"
+        >
+          STATUS
+        </label>
+        <ComboBox
+          items={STATUS.map((e) => ({
+            label: e.split("_").join(" "),
+            value: e,
+          }))}
+          onSelect={handleStatusSelect}
+          value={watch("status") ?? ""}
+          placeholder="Select a Status"
+        />
+        {errors.status && (
+          <p className="mt-2 text-sm text-red-600">{errors.status.message}</p>
+        )}
+      </div>
+
+      {/* Tombol submit yang berubah sesuai mode */}
+      <Button type="submit">
+        {isEditMode ? "Update User" : "Add User"}{" "}
+        {/* Menyesuaikan teks tombol */}
+      </Button>
+    </form>
+  );
+}
